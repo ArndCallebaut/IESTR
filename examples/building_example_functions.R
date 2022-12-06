@@ -107,10 +107,10 @@ cost_map_modified = function(nrow,ncol,map,FUN=cost_mapping){
 
 presence_map = function(nrow,ncol,suit_maps,height_map,xylim,nb_cell){
   suitnow = (suit_maps[[1]][nrow:1,]==1)*1
-  maty <- (matrix(runif(ncol*nrow),ncol = ncol))                # Specify number of columns
-  Xmin = round(xylim[1] * ncol)
+  maty <- (matrix(runif(ncol*nrow),ncol = ncol))               # Specify number of columns
+  Xmin = round(xylim[1] * ncol)+1
   Xmax = round(xylim[2] * ncol)
-  Ymin = round(xylim[3] * nrow)
+  Ymin = round(xylim[3] * nrow)+1
   Ymax = round(xylim[4] * nrow)
   mat <- (matrix(rep(0,ncol*nrow),ncol = ncol)) 
   mat[Xmin:Xmax,Ymin:Ymax]=1
@@ -119,7 +119,7 @@ presence_map = function(nrow,ncol,suit_maps,height_map,xylim,nb_cell){
   mat[,1:Ymin]=0
   mat[,Ymax:nrow]=0
   
-  viable_coord = which((mat*(0<height_map))==1,arr.ind=TRUE)
+  viable_coord = which((mat*(0<height_map)*((suitnow)!=0))==1,arr.ind=TRUE)
   
   nb_possible = length(viable_coord[,1])
   if(nb_possible<nb_cell){

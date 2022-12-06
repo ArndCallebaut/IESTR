@@ -21,7 +21,7 @@ library(dplyr)
 library(purrr)
 library(Matrix)
 library("viridis")
-#library("IESTR")
+library("IESTR")
 library(hrbrthemes)
 library(grid)
 library(raster)
@@ -70,16 +70,16 @@ migr_spe[2,2] = 0.99
 # Species - presence - area 1
 nb_cell_occuped1 = 10
 xmin = 0.15
-xmax = 0.32
+xmax = 0.42
 ymin = 0.2
-ymax = 0.32
+ymax = 0.42
 lim1 = c(xmin,xmax,ymin,ymax)
 
 # Species - presence - area 2
 nb_cell_occuped2 = 10
-xmin = 0.75
+xmin = 0.65
 xmax = 0.9
-ymin = 0.75
+ymin = 0.65
 ymax = 0.9
 lim2 = c(xmin,xmax,ymin,ymax)
 
