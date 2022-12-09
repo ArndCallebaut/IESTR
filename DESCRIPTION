@@ -11,6 +11,6 @@ Description: More details about what the package does. See
 License: GPL (>= 2)
 Suggests: 
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Imports: Rcpp (>= 1.0.7), Matrix
 LinkingTo: RcppArmadillo, RcppEigen, Rcpp

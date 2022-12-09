@@ -85,7 +85,7 @@ cost_map = function(nrow,ncol,map,FUN=cost_mapping){
   v = outer(x,y,FUN)
   cost = (!is.na(map)) * v
   cost[is.na(map)] = NA
-  if(class(cost)=="dtCMatrix"){cost = as(as(cost,"dgCMatrix"),"dgCMatrix")}
+  if("dtCMatrix" %in% class(cost)){cost = as(as(cost,"dgCMatrix"),"dgCMatrix")}
   else{cost = as(cost,"dgCMatrix")}
   cost = as(as(cost,"dgTMatrix"),"dgCMatrix")
   return(cost)
@@ -95,7 +95,7 @@ cost_map_modified = function(nrow,ncol,map,FUN=cost_mapping){
   y = seq(0,1,length=ncol)
   v = outer(x,y,FUN) + map*400
   cost = (!is.na(map)) * v
-  if(class(cost)=="dtCMatrix"){cost = as(as(cost,"dgCMatrix"),"dgCMatrix")}
+  if('dtCMatrix' %in% class(cost)){cost = as(as(cost,"dgCMatrix"),"dgCMatrix")}
   else{cost = as(cost,"dgCMatrix")}
   cost = as(as(cost,"dgTMatrix"),"dgCMatrix")
   return(cost)
