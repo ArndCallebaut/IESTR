@@ -5,6 +5,4 @@
 
 using namespace Rcpp;
 
-NumericVector timesTwo(NumericVector x);
-
 #endif

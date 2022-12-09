@@ -26,7 +26,4 @@ int optimise_planting_choice4(SparseMatrix<double> viablesValues2, int threshold
 
 void optimise_planting_choice5 (Eigen::SparseMatrix<double> viablesValues2, int threshold, double confidence, Rcpp::NumericMatrix viablesTriplets, Rcpp::NumericMatrix population, int pop, int nbtoplant,  Eigen::SparseVector<double> current);
 
-void voidistheonlyoption();
-
-
 #endif

@@ -368,7 +368,7 @@ Eigen::SparseMatrix<double> proba_matrix_mult3(Eigen::SparseMatrix<double> A,Eig
   return (result_matrix);
 }
 /*
-//[[Rcpp::export]]
+
 Eigen::SparseMatrix<double> proba_matrix_mult4(Eigen::SparseMatrix<double> A,Eigen::SparseMatrix<double> B){
   
   

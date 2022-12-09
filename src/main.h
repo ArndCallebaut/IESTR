@@ -25,8 +25,6 @@ using namespace Rcpp;
 using namespace Eigen;
 using namespace arma;
 
-Eigen::SparseMatrix<double> sqrt_(Eigen::SparseMatrix<double> X);
-
 Rcpp::List optgenam3 (Eigen::SparseMatrix<double> currentPresenceMatrix,
                       std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix,
                       Eigen::SparseMatrix<double> costMatrix,

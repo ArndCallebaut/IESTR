@@ -12,17 +12,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// sqrt_
-Eigen::SparseMatrix<double> sqrt_(Eigen::SparseMatrix<double> X);
-RcppExport SEXP _IESTR_sqrt_(SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(sqrt_(X));
-    return rcpp_result_gen;
-END_RCPP
-}
 // optgenam3
 Rcpp::List optgenam3(Eigen::SparseMatrix<double> currentPresenceMatrix, std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix, Eigen::SparseMatrix<double> costMatrix, Rcpp::NumericMatrix migrationKernel, int threshold, double confidence, int npop, int nsur, int ngen);
 RcppExport SEXP _IESTR_optgenam3(SEXP currentPresenceMatrixSEXP, SEXP consecutiveSuitabilityMatrixSEXP, SEXP costMatrixSEXP, SEXP migrationKernelSEXP, SEXP thresholdSEXP, SEXP confidenceSEXP, SEXP npopSEXP, SEXP nsurSEXP, SEXP ngenSEXP) {
@@ -253,7 +242,6 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_IESTR_sqrt_", (DL_FUNC) &_IESTR_sqrt_, 1},
     {"_IESTR_optgenam3", (DL_FUNC) &_IESTR_optgenam3, 9},
     {"_IESTR_index_random_choice_non_uniform", (DL_FUNC) &_IESTR_index_random_choice_non_uniform, 1},
     {"_IESTR_generate_permutation4", (DL_FUNC) &_IESTR_generate_permutation4, 2},
