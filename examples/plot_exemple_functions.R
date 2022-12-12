@@ -84,9 +84,135 @@ do_plot_fig3 = function(nr,nc,cost1,cost2,cost3,name = "fig2.png"){
 }
 
 #################################################
-## Figure 4 : results plot
+## Figure 5 : results plot
 #################################################
 
+do_plot_fig5 = function(nr,nc,suitability_maps,choice,choix,){
+  
+  
+  
+  data <- expand.grid(X=nr, Y=nc)
+  data$C1 <- c(as.matrix(cost1))
+  data$C2 <- c(as.matrix(cost2))
+  data$C3 <- c(as.matrix(cost3))
+  dat.temp = data[,c(2,1,3,4,5)]
+  names (dat.temp) <- c('X','Y',"(a) uniform cost","(b) west-to-east cost","(c) altitude cost")
+  kk2 = pivot_longer(dat.temp,cols=c(3,4,5),names_to = 'cost_type',values_to = "Cost") 
+  kk2$temperature = factor (kk2$cost_type,levels = c("(a) uniform cost","(b) west-to-east cost","(c) altitude cost"))
+  plt_cost = ggplot() + coord_fixed()+
+    geom_raster(data = kk2 , aes(x = X, y=Y,fill = Cost)) + theme(panel.background = element_blank(),strip.background = element_blank() ,line = element_blank(),axis.title = element_blank(),axis.text = element_blank(), axis.ticks = element_blank())+
+    facet_wrap(temperature~.)+
+    scale_fill_gradientn(colours = viridis(10),limits=c(100,500))
+  ggsave(name, width = 15, height = 5)
+  return(plt_cost)
+}
+
+cm0 = cm[[1]]
+sp = apply(cm0,FUN = sum,2)
+
+
+
+choix_ma = choix
+choix_ma = choix_ma[(choix_ma[,1]!=-1),]
+
+XY_ma = (choix[,c(1,2)]-1/2)/nrow
+#points(XY_ma[,2], XY_ma[,1],col="white",pch=19)
+
+possibilities = gsc
+possibilities = possibilities +1
+
+
+indices_pres = matrix(0,length(XY_pres[,1]))
+#XY_pres = XY_pres[nrow:1,]
+for (i in (1:length(XY_pres[,1]))){
+  h = NA
+  for (j in (1:length(possibilities[,1]))){
+    if ((possibilities[j,1]==(nrow+1-XY_pres[i,1]))&(possibilities[j,2]==(XY_pres[i,2]))){
+      h = possibilities[j,3]
+      break
+    }
+  }
+  if (!is.na(h)){
+    indices_pres[i] = possibilities[h,3]
+  }
+}
+print(indices_pres)
+
+coloni = as.matrix(cm[[1]])[,indices_pres]
+colo2 = 0.99999999 - coloni
+colo3 = round(1-apply(colo2, FUN= prod,2),2)
+
+#####
+##### Afficher la situation SAALEE (si aucune action légitime n'est entreprise)
+#####
+
+rvb_tensor = array(0.5,c(nrow,ncol,3))
+for (i in 1:length(c(colo3))){
+  if (colo3[i]>=0.95){
+    #0.5 + colo3[i]/2
+    rvb_tensor[possibilities[indices_pres[i],1],possibilities[indices_pres[i],2],1]=0.9#R
+    rvb_tensor[possibilities[indices_pres[i],1],possibilities[indices_pres[i],2],2]=0.0 #G
+    rvb_tensor[possibilities[indices_pres[i],1],possibilities[indices_pres[i],2],3]=0.9#B    
+  }
+  
+}
+for (j in 1:length(cm[[1]][,1])){
+  rvb_tensor[possibilities[j,1],possibilities[j,2],1]= 0.6
+  rvb_tensor[possibilities[j,1],possibilities[j,2],2]= 0.6
+  rvb_tensor[possibilities[j,1],possibilities[j,2],3]= 0.6
+}
+indices_choix_ma2 = indices_choix_ma[indices_choix_ma!=0] 
+for (i in 1:length(indices_pres)){
+  for (j in 1:length(cm[[1]][,1])){
+    #○cm[[1]][j,indices_pres[i]]
+    s = cm[[1]][j,indices_pres[i]]
+    if (s!=0){
+      rvb_tensor[possibilities[j,1],possibilities[j,2],1]= s + rvb_tensor[possibilities[j,1],possibilities[j,2],1] -  rvb_tensor[possibilities[j,1],possibilities[j,2],1] * s
+      #rvb_tensor[possibilities[j,1],possibilities[j,2],2]= 0
+      rvb_tensor[possibilities[j,1],possibilities[j,2],2]= s + rvb_tensor[possibilities[j,1],possibilities[j,2],1] -  rvb_tensor[possibilities[j,1],possibilities[j,2],1] * s
+    }
+  }
+}
+indices_choix_ma2 = indices_choix_ma[indices_choix_ma!=0] 
+for (i in 1:length(indices_choix_ma2)){
+  for (j in 1:length(cm[[1]][,1])){
+    #○cm[[1]][j,indices_pres[i]]
+    s = cm[[1]][j,indices_choix_ma2[i]]
+    if (s!=0){
+      rvb_tensor[possibilities[j,1],possibilities[j,2],1]= s + rvb_tensor[possibilities[j,1],possibilities[j,2],1] -  rvb_tensor[possibilities[j,1],possibilities[j,2],1] * s
+      #rvb_tensor[possibilities[j,1],possibilities[j,2],2]= 0
+      rvb_tensor[possibilities[j,1],possibilities[j,2],3]= s + rvb_tensor[possibilities[j,1],possibilities[j,2],1] -  rvb_tensor[possibilities[j,1],possibilities[j,2],1] * s
+    }
+  }
+}
+indices_choix_ma2 = indices_choix_ma[indices_choix_ma!=0] 
+for (i in 1:length(indices_choix_ma2)){
+  x = possibilities[indices_choix_ma2[i],1]
+  y = possibilities[indices_choix_ma2[i],2]
+  rvb_tensor[x,y,1]=0.3 #R
+  rvb_tensor[x,y,2]=0.3 #G
+  rvb_tensor[x,y,3]=0.9 #B
+}
+for (i in 1:length(XY_pres[,1])){
+  if (colo3[i]>0.8){
+    rvb_tensor[nrow+1-XY_pres[i,1],XY_pres[i,2],1]=0.3 #R
+    rvb_tensor[nrow+1-XY_pres[i,1],XY_pres[i,2],2]=0.9 #G
+    rvb_tensor[nrow+1-XY_pres[i,1],XY_pres[i,2],3]=0.3 #B
+  }
+  if (colo3[i]<=0.8){
+    rvb_tensor[nrow+1-XY_pres[i,1],XY_pres[i,2],1]=0.9 #R
+    rvb_tensor[nrow+1-XY_pres[i,1],XY_pres[i,2],2]=0 #G
+    rvb_tensor[nrow+1-XY_pres[i,1],XY_pres[i,2],3]=0 #B
+  }
+}
+
+rvb_tensor[is.na(map)]=1
+rvb_tensor2 = round(rvb_tensor*255)
+raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
+
+plotRGB(flip(raster_RGB))
+#legend("topright",c("Surviving sites", "Naturally colonised sites", "Not surviving sites", "Planting sites AM", "Colonised sites due to AM"), cex=1.0, bty="y",
+#       fill=c("green","yellow","red","blue","purple"),inset=.04)
 
 
 
