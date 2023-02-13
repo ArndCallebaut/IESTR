@@ -77,7 +77,7 @@ cost_mapping2 = function(x,y){
   return (100+y*400)
 }
 cost_mapping3 = function(x,y){
-  return (100+local_height(x,y)*400)
+  return (500-local_height(x,y)*400)
 }
 cost_map = function(nrow,ncol,map,FUN=cost_mapping){
   x = seq(0,1,length=nrow)
@@ -93,7 +93,7 @@ cost_map = function(nrow,ncol,map,FUN=cost_mapping){
 cost_map_modified = function(nrow,ncol,map,FUN=cost_mapping){
   x = seq(0,1,length=nrow)
   y = seq(0,1,length=ncol)
-  v = outer(x,y,FUN) + map*400
+  v = outer(x,y,FUN) + (map)*100
   cost = (!is.na(map)) * v
   if('dtCMatrix' %in% class(cost)){cost = as(as(cost,"dgCMatrix"),"dgCMatrix")}
   else{cost = as(cost,"dgCMatrix")}
@@ -137,12 +137,34 @@ presence_map = function(nrow,ncol,suit_maps,height_map,xylim,nb_cell){
   return(pres)
 }
 
+presence_map_2 = function(nrow,ncol,suit_maps,height_map,N_cycles,nb_cell){
+  suitnow = (suit_maps[[1]][nrow:1,]==1)*1
+  notsuitend = (suit_maps[[round(N_cycles/3*2)]][nrow:1,]<=0.3)*1
+  
+  viable_coord = which(((0<height_map)*((suitnow)!=0)*(notsuitend!=0))==1,arr.ind=TRUE)
+  
+  nb_possible = length(viable_coord[,1])
+  if(nb_possible<nb_cell){
+    message("ERROR : too much cells asked. ")
+    pres = height_map * 0
+    pres[is.na(height_map)] = NA
+    pres[viable_coord] = 1
+    return(pres)
+  }
+  indices_presence = sample(nb_possible, nb_cell)
+  coord_presence = viable_coord[indices_presence,]
+  pres = height_map * 0
+  pres[is.na(height_map)] = NA
+  pres[coord_presence] = 1
+  return(pres)
+}
+
 ### ### ###
 ### Function for presence on the map
 ###
 
-
-
+ngens = c(200,400,600,800,1000)
+n
 
 
 

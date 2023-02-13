@@ -22,8 +22,15 @@ using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
 
-int optimise_planting_choice4(SparseMatrix<double> viablesValues2, int threshold, double confidence, Rcpp::NumericMatrix viablesTriplets, Rcpp::NumericMatrix population, int pop, int nbtoplant,  Eigen::SparseVector<double>& current);
+int half_random_remove_site(SparseMatrix<double> viablesValues2, 
+                    int threshold, double confidence, 
+                    Rcpp::NumericMatrix viablesTriplets, 
+                    Rcpp::NumericMatrix population, 
+                    int pop, int nbtoplant,  
+                    Eigen::SparseVector<double>& current);
 
-void optimise_planting_choice5 (Eigen::SparseMatrix<double> viablesValues2, int threshold, double confidence, Rcpp::NumericMatrix viablesTriplets, Rcpp::NumericMatrix population, int pop, int nbtoplant,  Eigen::SparseVector<double> current);
+int optimise_remove_site(SparseMatrix<double> viablesValues2, int threshold, double confidence, Rcpp::NumericMatrix viablesTriplets, Rcpp::NumericMatrix population, int pop, int nbtoplant,  Eigen::SparseVector<double>& current);
+
+void optimise_add_site(Eigen::SparseMatrix<double> viablesValues2, int threshold, double confidence, Rcpp::NumericMatrix viablesTriplets, Rcpp::NumericMatrix population, int pop, int nbtoplant,  Eigen::SparseVector<double> current);
 
 #endif

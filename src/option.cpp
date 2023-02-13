@@ -210,6 +210,9 @@ Eigen::SparseMatrix<double> rcpp_viable_sites(std::vector<Eigen::SparseMatrix<do
         if (av2 && !av1){
           viability(h)=0;
         }
+        if (!av2 && !av1){
+          viability(k)=0;
+        }
         ++k;
       }
       ++h;
@@ -217,7 +220,7 @@ Eigen::SparseMatrix<double> rcpp_viable_sites(std::vector<Eigen::SparseMatrix<do
     
     for (int j=0;j<nbperiod;++j){
       if (viability[j]==1){
-        if((colonisationMatrices.at(j).col(i)).sum()>0.5){
+        if((colonisationMatrices.at(j).col(i)).sum()>=0.99){
           viableSites.coeffRef(int(j),int(i))=1;
           //viableSites2.coeffRef(int(i),int(j))=1;
         }
@@ -256,8 +259,6 @@ Rcpp::NumericMatrix rcpp_viable_triplets(Eigen::SparseMatrix<double> viableSites
   return (viablesTriplets);
 }
 
-
-
 // [[Rcpp::export]]
 Eigen::SparseMatrix<double> rcpp_viable_values(Rcpp::NumericMatrix viablesTriplets,
                                                 Eigen::SparseMatrix<double> viableSites,
@@ -291,33 +292,6 @@ Eigen::SparseMatrix<double> rcpp_viable_values(Rcpp::NumericMatrix viablesTriple
     return(viablesValues);
 }    
 
-
-/*
-Eigen::SparseVector<double> rcpp_get_current_vector(Eigen::SparseMatrix<double> currentPresenceMatrix,
-                                                    std::vector<Eigen::SparseMatrix<double>> colonisationMatrices,
-                                                    Eigen::SparseMatrix<double> globalSuitableSites){
-  int nbsites = (globalSuitableSites).nonZeros();
-  int x;
-  int y;
-  int s;
-  int v;
-  Eigen::SparseVector<double> currentVector(nbsites);
-  std::cout << "..............................................."<<std::endl;
-  for (int k=0; k<currentPresenceMatrix.outerSize(); ++k)
-    for (Eigen::SparseMatrix<double>::InnerIterator it(currentPresenceMatrix,k); it; ++it)
-    {
-      x = it.row();
-      y = it.row();
-      s = globalSuitableSites.coeffRef(it.row(),it.col());
-      for (Eigen::SparseMatrix<double>::InnerIterator it2(colonisationMatrices.back(),s-1); it2; ++it2) {
-        v = it2.value();
-        currentVector.coeffRef(it2.row()) = currentVector.coeffRef(it2.row()) +v-v*currentVector.coeffRef(it2.row());
-        }
-      }
-  return(currentVector);
-  }
-*/
-
 // [[Rcpp::export]]
 NumericVector rcpp_eval_current_prob(int threshold,
                                      Eigen::SparseMatrix<double> currentPresenceMatrix,
@@ -332,20 +306,14 @@ NumericVector rcpp_eval_current_prob(int threshold,
   int s;
   double v;
   Eigen::SparseVector<double> currentVector(nbsites);
-  //std::cout << "..............................................."<<std::endl;
-
   for (int k=0; k<currentPresenceMatrix.outerSize(); ++k)
     for (Eigen::SparseMatrix<double>::InnerIterator it(currentPresenceMatrix,k); it; ++it)
     {
       x = it.row();
       y = it.row();
       s = globalSuitableSites.coeffRef(it.row(),it.col());
-      //std::cout << "KILLING MACHINE - "<<s<<std::endl;
-      
       for (Eigen::SparseMatrix<double>::InnerIterator it2(colonisationMatrices.back(),s-1); it2; ++it2) {
-        
         v = it2.value();
-        //std::cout << "..............................................."<<it2.row()<<std::endl;
         currentVector.coeffRef(it2.row()) = currentVector.coeffRef(it2.row()) +v-v*currentVector.coeffRef(it2.row());
          
       }
@@ -373,11 +341,9 @@ Rcpp::NumericVector rcpp_pheromons(Rcpp::NumericMatrix viablesTriplets){
 
 // [[Rcpp::export]]
 Rcpp::NumericVector rcpp_generate_population(Rcpp::NumericVector pheromons,Eigen::SparseMatrix<double> globalSuitableSites,int npop, int nbtoplant){
-  
   Rcpp::NumericMatrix population(npop,nbtoplant);
   Rcpp::NumericVector permutation(nbtoplant);
   for (int j=0; j<npop; ++j) {
-    //std::cout << "..............................................."<<j<<std::endl;
     permutation=generate_permutation4(nbtoplant,pheromons);
     population(j,_) = permutation ;
   }
@@ -400,8 +366,10 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
                                        int ngen,
                                        int nbtoplant){
   
-  //return(Rcpp::NumericVector(5));
   
+  // **************************************************************************
+  // ** 0 INITIALISATION ******************************************************
+  // **************************************************************************
   
   int index;    
   int g;
@@ -417,44 +385,55 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
   int f;
   double v1;
   double v2;
+  int progress_bar_var;
   
-  Rcpp::NumericMatrix population= population0;
+  Rcpp::NumericMatrix population=population0;
   Rcpp::NumericMatrix survivors(npop,nbtoplant);
   Rcpp::NumericVector ranks(npop);
   
-  
-  
+  // **************************************************************************
+  // ** 1 EVALUATION FINAL STATE **********************************************
+  // **************************************************************************
   
   int nboc = viablesTriplets.nrow();
   int nbsites = (globalSuitableSites).nonZeros();
   Eigen::SparseVector<double> currentVector(nbsites);
-  //std::cout << "..............................................."<<std::endl;
   for (int k=0; k<currentPresenceMatrix.outerSize(); ++k)
     for (Eigen::SparseMatrix<double>::InnerIterator it(currentPresenceMatrix,k); it; ++it)
     {
       x = it.row();
       y = it.row();
       s = globalSuitableSites.coeffRef(it.row(),it.col());
-      //std::cout << "..............................................."<<s<<std::endl;
       
       for (Eigen::SparseMatrix<double>::InnerIterator it2(colonisationMatrices.back(),s-1); it2; ++it2) {
         v = it2.value();
         currentVector.coeffRef(it2.row()) = currentVector.coeffRef(it2.row()) +v-v*currentVector.coeffRef(it2.row());
       }
-      
     }
-
-
-  //return(Rcpp::NumericVector(5));
-  //int nbsites = currentVector.size();
+    
+  // **************************************************************************
+  // ** 2 SELECTION LOOP PROCESS **********************************************
+  // **************************************************************************
   
   Rcpp::NumericMatrix evaluation(npop,2);
-  // std::cout << "FINISH HIM" <<npop<<std::endl;
-  //
+  int ref_10 = (int) ((double) ngen)/(10) ;
   for (g=0; g<ngen; ++g) {
-    std::cout << "Calculating gen number " << g <<std::endl;
+    
+    // **************************************************************************
+    // ** 2.0 LOOP PRINT PROCESS ************************************************
+    // **************************************************************************
+    
+    if(g == ngen - 1) {
+      std::cout << "100.0%" << std::endl;
+    } else if( g%ref_10==0) {
+      std::cout << ((double)(g))/((double)(ngen))*100.0 << "%-";
+    }
+    
+    // **************************************************************************
+    // ** 2.1 EVALUATION EACH SET OF CHOICES ************************************
+    // **************************************************************************
+    
     for (int j=0; j<npop;++j) {
-      //std::cout << "pop number " <<j<<std::endl;
       Eigen::SparseVector<double> npm = currentVector;
       Eigen::SparseVector<double> lea(nbsites);
       cost = 0;
@@ -462,38 +441,30 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
       for (int h=0;h<nbtoplant;++h){
         index = population(j,h);
         if(index != -1){
-          
           x = viablesTriplets(index,0);
           y = viablesTriplets(index,1);
-          
-          
+
           cost = cost + costMatrix.coeffRef(x,y);
           lea = viablesValues.col(index);
 
           for (SparseVector<double>::InnerIterator it(lea); it; ++it)
           {
-            it.value(); // == vec[ it.index() ]
+            it.value();
             it.index();
             v1 = npm.coeffRef(it.index()-1);
             v2 = it.value();
             npm.coeffRef(it.index()-1) = v1 + v2 - v1 * v2;
           }
-          
         } 
-         
       }
-      
-      
       
       Rcpp::NumericVector evaluate = eval_probabilityVector(npm, threshold+1);
       evaluation(j,1)=cost;
       
-      if((evaluate(threshold)+evaluate(threshold+1))>=confidence)
-      {
+      if((evaluate(threshold)+evaluate(threshold+1))>=confidence){
         evaluation(j,0)=1;
-        
         while(evaluate(threshold+1)>=confidence){
-          int index_eliminated = optimise_planting_choice4(viablesValues,threshold,confidence,viablesTriplets,population,j,nbtoplant,npm);
+          int index_eliminated = optimise_remove_site(viablesValues,threshold,confidence,viablesTriplets,population,j,nbtoplant,npm);
           if (index_eliminated==-1){
             break;
           }
@@ -503,10 +474,9 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
           }
         }
       }
-      
       else{
         if(evaluate(threshold)>=confidence){
-          optimise_planting_choice5(viablesValues,threshold,confidence,viablesTriplets,population,j,nbtoplant,npm);
+          optimise_add_site(viablesValues,threshold,confidence,viablesTriplets,population,j,nbtoplant,npm);
           evaluation(j,0)=1;
         }
         else{
@@ -516,8 +486,10 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
       }
     }
     
-    //std::cout << "The great evaluation ! : " << threshold<<std::endl;
-    //std::cout << evaluation << std::endl;
+    // **************************************************************************
+    // ** 2.1 EVALUATION EACH SET OF CHOICES ************************************
+    // **************************************************************************
+    
     
     int saving;
     for (int h=0;h<npop;++h){
@@ -527,7 +499,6 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
       indexmini = (h);
       cout_mini = evaluation(ranks(h),1);
       for (int k=h+1;k<npop;++k){
-        //Rcout << "Let it flow" << ranks(k) <<std::endl;
         if(cout_mini>evaluation(ranks(k),1)){
           indexmini = (k);
           cout_mini = evaluation(ranks(k),1);
@@ -541,6 +512,7 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
     for (int h=0;h<nsur;++h){
       survivors(h,_) = population(int(ranks(h)),_);
     }
+    
     
     if (1==1 || g!=ngen){
       int mid = randomfunc3(nbtoplant);
@@ -558,7 +530,7 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
             survivors(h,j) = population(mama,j);
           }
           
-          f = randomfunc3(10);
+          f = randomfunc3(5);
           
           if (f==1){
             survivors(h,j) =  randomfunc3(nboc);
@@ -579,14 +551,9 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
 
 // [[Rcpp::export]]  
 Rcpp::NumericMatrix rcpp_result_to_choice(Rcpp::NumericMatrix lastPopulation,Rcpp::NumericMatrix viablesTriplets){
-  
   int nbtoplant =(lastPopulation).ncol();
   Rcpp::NumericMatrix  choices_matrix(nbtoplant,6);  
-  
-  //Rcpp::NumericMatrix result(nbtoplant,6);
-  
   if(true){
-    
     for (int j=0;j<nbtoplant;++j){
       //survivors(h,j) = population(int(ranks(h%nsur)),j);
       if( lastPopulation(1,j)!=-1){
@@ -607,73 +574,3 @@ Rcpp::NumericMatrix rcpp_result_to_choice(Rcpp::NumericMatrix lastPopulation,Rcp
   }
   return (choices_matrix);
 }
-
-
-/*
-// [[Rcpp::export]]
-arma::sp_mat global_suitable_sites(std::list<arma::sp_mat> consecutiveSuitabilityMatrix){
-  int nbr = (consecutiveSuitabilityMatrix.back()).n_rows;
-  int nbc = (consecutiveSuitabilityMatrix.back()).n_cols;
-  arma::sp_mat globalSuitableSites(nbr,nbc);
-  Rcpp::NumericVector vec_nbpp(consecutiveSuitabilityMatrix.size());
-  int k = 0;
-  for (auto const& thisSuitabilityMatrix : consecutiveSuitabilityMatrix){
-    vec_nbpp(k) = thisSuitabilityMatrix.n_nonzero;
-    ++k;
-  }
-  int tnbpp = sum(vec_nbpp);
-  int j=1;
-  for (auto const& thisSuitabilityMatrix : consecutiveSuitabilityMatrix){
-    sp_mat::const_iterator start = thisSuitabilityMatrix.begin();
-    sp_mat::const_iterator end   = thisSuitabilityMatrix.end();
-    
-    for(sp_mat::const_iterator it = start; it != end; ++it)
-    {
-      globalSuitableSites(it.row(),it.col()) = int(j);
-      j++;
-    }
-  }
-  return(globalSuitableSites);
-}
-*/
-
-/*
-Rcpp::List transition(std::list<arma::sp_mat> consecutiveSuitabilityMatrix,Rcpp::NumericMatrix migrationKernel) {
-  std::list<arma::sp_mat> transitionMatrices;
-  
-  t = 0;
-  std::list<arma::sp_mat> localTransitionMatrix(nbsites,nbsites);
-  
-  for (index=0;index<nbsites;++index){
-    i = globalSuitableCoordinates(index,0);
-    j = globalSuitableCoordinates(index,1);
-    for (h=max(0,i-migrationRange); h<min(nbr,i+migrationRange+1); ++h){
-      for (k=max(0,j-migrationRange); k<min(nbc,j+migrationRange+1); ++k){
-        if (globalSuitableSites.coeffRef(h,k)!=0 && migrationKernel(h+migrationRange-i,k+migrationRange-j)!=0){
-          
-          //std::cout << ".... HOW THE TURNTABLE x="<<(h+migrationRange-i)<< " y="<<(k+migrationRange-j)<<std::endl;
-          
-          localTransitionMatrix.insert(globalSuitableSites.coeffRef(h,k)-1,index)=migrationKernel(h+migrationRange-i,k+migrationRange-j);
-        }
-      }
-    }
-  }
-  
-  arma::sp_mat transitionMatrix;
-  i=0;
-  for (auto thisSuitabilityMatrix : consecutiveSuitabilityMatrix){
-    transitionMatrix = localTransitionMatrix;
-    for (k=0; k<localTransitionMatrix.outerSize(); ++k){
-      for (Eigen::SparseMatrix<double>::InnerIterator it(localTransitionMatrix,k); it; ++it)
-      {
-        
-        transitionMatrix.coeffRef(it.row(),it.col()) *= thisSuitabilityMatrix.coeffRef(globalSuitableCoordinates(it.row(),0),globalSuitableCoordinates(it.row(),1));
-      }
-    }
-    transitionMatrix.prune(0.0);
-    ++i;
-    transitionMatrices.push_back(transitionMatrix);
-  }
-  
-}
-*/

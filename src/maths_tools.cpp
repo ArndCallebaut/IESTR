@@ -4,7 +4,6 @@
 #include <RcppEigen.h>
 #include <iostream>
 #include <vector>
-#include <Rcpp.h>
 #include <numeric>      
 #include <algorithm>    
 #include <bits/stdc++.h> 
@@ -24,10 +23,17 @@ using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
 
-//[[Rcpp::export]]
-int index_random_choice_non_uniform (NumericVector ununiform_probabilities0){
+// [[Rcpp::export]]
+void rcpp_set_seed(unsigned int seed) {
+  Rcpp::Environment base_env("package:base");
+  Rcpp::Function set_seed_r = base_env["set.seed"];
+  set_seed_r(seed);  
+}
 
-  Rcpp::NumericVector ununiform_probabilities=ununiform_probabilities0/sum(ununiform_probabilities0);
+//[[Rcpp::export]]
+int index_random_choice_non_uniform (Rcpp::NumericVector ununiform_probabilities0){
+
+  Rcpp::NumericVector ununiform_probabilities = ununiform_probabilities0/Rcpp::sum(ununiform_probabilities0);
   Rcpp::NumericVector cumulative_probabilities(ununiform_probabilities.length());
   cumulative_probabilities(0) = ununiform_probabilities(0);
   
@@ -37,7 +43,6 @@ int index_random_choice_non_uniform (NumericVector ununiform_probabilities0){
   
   //std::cout << "LETS TRY THIS"<<cumulative_probabilities << std::endl;
   //if( cumulative_probabilities((cumulative_probabilities.length()-1)) < 1){
-    
     //std::cout << "ALERTE ALERTE !"<<cumulative_probabilities(cumulative_probabilities.length()-1) << std::endl;
   //}
   
@@ -76,8 +81,6 @@ NumericVector eval_probabilityVector (Eigen::SparseVector<double> probabilityVec
   }
   return(nScores) ;
 }
-
-
 
 NumericVector eval_probabilityVector_adding (Eigen::SparseVector<double> probabilityVector, Eigen::SparseVector<double> probabilityVector2,int threshold1){
   
@@ -121,45 +124,33 @@ NumericVector generate_permutation3(int permutation_size, int total_size){
 
 //[[Rcpp::export]]
 NumericVector generate_permutation4(int permutation_size, Rcpp::NumericVector ununiform_probabilities0){
-  
-  //std::cout << "Checkup 1" << std::endl;
-  
+
   Rcpp::NumericVector ununiform_probabilities = ununiform_probabilities0;
   int total_size = ununiform_probabilities.length();
-  
   Rcpp::NumericVector v(total_size);
   
   for (int i = 0; i < total_size; i++){
     v(i) = i ;
   }
-  //std::cout << "OK here it's done." << std::endl;
-  //std::cout << "Checkup 2" << std::endl;
+
   Rcpp::NumericVector result(permutation_size);
   int indice_max = total_size;
   int alea;
   int saver;
+  
   for (int i = 0; i < permutation_size; i++){
-    
-    //std::cout << "Checkup 1" << std::endl;
-    //std::cout << ununiform_probabilities.length() << std::endl;
+
     alea = index_random_choice_non_uniform(ununiform_probabilities);
-    //std::cout << "Checkup 3.2" << std::endl;
-    //std::cout << "OK here it's done..."<<v(alea) << std::endl;
-    //std::cout << "Checkup 1.1 - "<< alea << " - ok on TS - "<< total_size << std::endl;
     result(i) = v(alea);
-    //std::cout << "Checkup 1.2" << std::endl;
     saver = v(indice_max-1);
-    //std::cout << "Checkup 2" << std::endl;
     v(indice_max-1) = v(alea);
     v(alea) = saver;
-    indice_max --;
-    
-    //std::cout << "Checkup 3" << std::endl;
     
     ununiform_probabilities(v(alea)) = ununiform_probabilities(indice_max-1);
     ununiform_probabilities(indice_max-1) = 0;
+    indice_max --;
     
-    //ununiform_probabilities.erase((alea));
+    //ununiform_probabilities.erase((indice_max-1-i));
   }
   return(result);
 }
@@ -327,7 +318,7 @@ Eigen::SparseMatrix<double> proba_matrix_mult3(Eigen::SparseMatrix<double> A,Eig
   double val3;
   int i;
   std::cout << "A..."<<A.nonZeros()<<" ------- B..."<<B.nonZeros()<<std::endl;
-  
+  double prec = 0.0005;
   
   for (int k=0; k<B.outerSize(); ++k){
     Eigen::SparseVector<double> local(n);
@@ -338,7 +329,7 @@ Eigen::SparseMatrix<double> proba_matrix_mult3(Eigen::SparseMatrix<double> A,Eig
             val1 = it.value();
             ind1 = it.row();
             //std::cout << "\nval of B calculated - "<<val1<<" k="<<k<<" h="<<ind1<<std::endl;
-            if(val1>0.01){
+            if(val1>prec){
               local2 = val1 * A.col(ind1);
               //std::cout << "A cols resulting of this - "<<local2<<std::endl;
               for (Eigen::SparseVector<double>::InnerIterator it(local2); it; ++it)
@@ -356,14 +347,14 @@ Eigen::SparseMatrix<double> proba_matrix_mult3(Eigen::SparseMatrix<double> A,Eig
           }
         
         for (InIterVec i_(local); i_; ++i_){
-          if (i_.value()>0.01){
+          if (i_.value()>prec){
             result_matrix.insert(i_.index(),k) = i_.value();
           }
         }
         //std::cout << "result_matrix then - "<<result_matrix<<std::endl;
         //result_matrix.col(k) = local;
     }
-  result_matrix.pruned(0.01);
+  result_matrix.pruned(prec);
   result_matrix.makeCompressed();
   return (result_matrix);
 }

@@ -9,6 +9,7 @@ library(wesanderson)
 library (tidyverse)
 library(gridExtra)
 library(wesanderson)
+library(dplyr)
 
 #################################################
 ## Figure 2 : presentation of the island & t°
@@ -25,8 +26,8 @@ do_plot_fig2 = function(nr, nc, height_map, climate_maps, N_cycles, name = "fig2
   pal <- wes_palette("Zissou1", 10, type = "continuous")
   data <- expand.grid(X=nr, Y=nc)
   data$Z1 <- c(height_map)
-  data$Z2 <- c(climate_maps[[1]])
   data$Z3 <- c(climate_maps[[N_cycles]])
+  data$Z2 <- c(climate_maps[[1]])
   
   plt1 = ggplot() +
     geom_raster(data = data , aes(x = X, y=Y,fill = Z1)) + 
@@ -37,14 +38,13 @@ do_plot_fig2 = function(nr, nc, height_map, climate_maps, N_cycles, name = "fig2
                          panel.background = element_blank())
   
   dat.temp = data[,c("X","Y","Z2","Z3")]
-  names (dat.temp) <- c('X','Y','Initital timestep','Final timestep')
+  names (dat.temp) <- c('X','Y','Initial timestep','Final timestep')
   dat.temp$`Initital timestep`
   dat.temp$`Final timestep`
   library (tidyverse)
   kk = pivot_longer(dat.temp,cols=c(3,4),names_to = 'temperature',values_to = "Temp") 
   t1temp = kk %>% filter (temperature == 'Initial timestep') 
-  kk$temperature = factor (kk$temperature,levels = c('Initial timestep','Final timestep'))
-  
+  kk$temperature = factor(kk$temperature,levels = c('Initial timestep','Final timestep'))
   plt2 = ggplot() +
     geom_raster(data = kk , aes(x = X, y=Y,fill = Temp)) + 
     facet_wrap(temperature~.)+
@@ -66,7 +66,7 @@ do_plot_fig2 = function(nr, nc, height_map, climate_maps, N_cycles, name = "fig2
 ## Figure 3 : presentation costs map
 #################################################
 
-do_plot_fig3 = function(nr,nc,cost1,cost2,cost3,name = "fig2.png"){
+do_plot_fig2bis = function(nr,nc,cost1,cost2,cost3,name = "fig2.png"){
   data <- expand.grid(X=nr, Y=nc)
   data$C1 <- c(as.matrix(cost1))
   data$C2 <- c(as.matrix(cost2))
@@ -81,138 +81,353 @@ do_plot_fig3 = function(nr,nc,cost1,cost2,cost3,name = "fig2.png"){
     scale_fill_gradientn(colours = viridis(10),limits=c(100,500))
   ggsave(name, width = 15, height = 5)
   return(plt_cost)
+}
+
+#################################################
+## Figure 3 : check la suitability
+#################################################
+
+do_plot_fig3 = function(nrow,
+                        ncol,
+                        N_cycles,
+                        height_map,
+                        suitability_maps,
+                        global_suitable_coordinates,
+                        presence_map){
+  # 0-preprocessing
+  
+  
+  # 1 - Structure of the RVB tensor (use : height maps, nrow, ncol)
+  rvb_tensor = array(0.95,c(nrow,ncol,3))
+  rvb_tensor[is.na(height_map)]=1
+  
+  # 2 - add suitability (use : suitability_maps)
+  suit_t0 = suitability_maps[[1]]
+  suit_tN = suitability_maps[[length(suitability_maps)]]
+  suit_only_t0 = suit_t0>0.5 & suit_tN<0.5
+  suit_both = suit_t0>0.5 & suit_tN>0.5
+  suit_only_tN = suit_t0<0.5 & suit_tN>0.5
+  rvb_tensor[,,1][array(suit_only_t0)] = 0.65
+  rvb_tensor[,,2][array(suit_only_t0)] = 0.65
+  rvb_tensor[,,3][array(suit_only_t0)] = 0.65
+  rvb_tensor[,,1][array(suit_both)] = 0.75
+  rvb_tensor[,,2][array(suit_both)] = 0.75
+  rvb_tensor[,,3][array(suit_both)] = 0.75
+  rvb_tensor[,,1][array(suit_only_tN)] = 0.85
+  rvb_tensor[,,2][array(suit_only_tN)] = 0.85
+  rvb_tensor[,,3][array(suit_only_tN)] = 0.85
+  
+  # 3 - add naturally conquered area (use : suitability_maps, presence_map)
+  XY_pres = data.frame(which(presence_map==1,arr.ind = T))
+  colnames(XY_pres) = c("x","y")
+  XY_to_index = data.frame(gsc+1)
+  colnames(XY_to_index) = c("x","y","index")
+  pres_index = inner_join(XY_pres,XY_to_index,by = c("x", "y"))
+  
+  # 9 - add initial presence site. By default red, then blue if it survived
+  rvb_tensor[,,1][cbind(XY_pres[,1],XY_pres[,2])] = 0.1
+  rvb_tensor[,,2][cbind(XY_pres[,1],XY_pres[,2])]= 0.6
+  rvb_tensor[,,3][cbind(XY_pres[,1],XY_pres[,2])] = 0.1
+  
+  
+  # 10 - add black belt
+  external_coord = which(is.na(height_map[2:(nrow-1),2:(ncol-1)]),arr.ind=TRUE)
+  is_on_border = apply(external_coord,1,FUN = function(x) 0!=sum(!is.na(height_map[(x[1]):(x[1]+2),(x[2]):(x[2]+2)])) )
+  coord_border = external_coord[is_on_border,]
+  rvb_tensor[,,1][cbind(coord_border[,1]+1,coord_border[,2]+1)] = 0.2
+  rvb_tensor[,,2][cbind(coord_border[,1]+1,coord_border[,2]+1)]= 0.2
+  rvb_tensor[,,3][cbind(coord_border[,1]+1,coord_border[,2]+1)] = 0.2 
+  
+  
+  # 11 - plot tensor
+  rvb_tensor2 = round(rvb_tensor*255)
+  raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
+  plt1 <- plotRGB(flip(raster_RGB,1))
+  
+}
+
+#################################################
+## Figure 4 : results plot
+#################################################
+
+do_plot_fig4 = function(nrow,
+                        ncol,
+                        N_cycles,
+                        height_map,
+                        suitability_maps,
+                        global_suitable_coordinates,
+                        colonisation_matrices,
+                        presence_map){
+  # 0-preprocessing
+  
+  
+  # 1 - Structure of the RVB tensor (use : height maps, nrow, ncol)
+  rvb_tensor = array(0.95,c(nrow,ncol,3))
+  rvb_tensor[is.na(height_map)]=1
+  
+  # 2 - add suitability (use : suitability_maps)
+  suit_t0 = suitability_maps[[1]]
+  suit_tN = suitability_maps[[length(suitability_maps)]]
+  suit_only_t0 = suit_t0>0.5 & suit_tN<0.5
+  suit_both = suit_t0>0.5 & suit_tN>0.5
+  suit_only_tN = suit_t0<0.5 & suit_tN>0.5
+  rvb_tensor[,,1][array(suit_only_t0)] = 0.65
+  rvb_tensor[,,2][array(suit_only_t0)] = 0.65
+  rvb_tensor[,,3][array(suit_only_t0)] = 0.65
+  rvb_tensor[,,1][array(suit_both)] = 0.75
+  rvb_tensor[,,2][array(suit_both)] = 0.75
+  rvb_tensor[,,3][array(suit_both)] = 0.75
+  rvb_tensor[,,1][array(suit_only_tN)] = 0.85
+  rvb_tensor[,,2][array(suit_only_tN)] = 0.85
+  rvb_tensor[,,3][array(suit_only_tN)] = 0.85
+  
+  # 3 - add naturally conquered area (use : suitability_maps, presence_map)
+  XY_pres = data.frame(which(presence_map==1,arr.ind = T))
+  colnames(XY_pres) = c("x","y")
+  XY_to_index = data.frame(gsc+1)
+  colnames(XY_to_index) = c("x","y","index")
+  pres_index = inner_join(XY_pres,XY_to_index,by = c("x", "y"))
+  
+  vectors_pres_effects_on_tN = summary((cm[[1]][,pres_index[,3]]))
+  colnames(vectors_pres_effects_on_tN) = c("index","i","effect")
+  tmp = vectors_pres_effects_on_tN
+  tmp$index = as.factor(tmp$index)
+  tmp$effect = 1 - tmp$effect
+  vectors_effects_on_tN = summary((cm[[1]][,pres_index[,3]]))
+  
+  tmp3 = aggregate(effect~(index),tmp,FUN=function(x) prod(x))
+  tmp3$index = as.numeric(as.character(tmp3$index))
+  tmp3$effect = 1-tmp3$effect
+  tmp3 = tmp3[tmp3$effect>0.1,]
+  
+  XY_effect = inner_join(tmp3,XY_to_index,by = c("index"))
+  rvb_tensor[,,1][cbind(XY_effect$x,XY_effect$y)] = 0.5 - 0.3*XY_effect$effect
+  rvb_tensor[,,2][cbind(XY_effect$x,XY_effect$y)] = 0.7 + 0.25*XY_effect$effect
+  rvb_tensor[,,3][cbind(XY_effect$x,XY_effect$y)] = 0.5 - 0.3*XY_effect$effect
+  
+  # 9 - add initial presence site. By default red, then blue if it survived
+  rvb_tensor[,,1][cbind(XY_pres[,1],XY_pres[,2])] = 0.9
+  rvb_tensor[,,2][cbind(XY_pres[,1],XY_pres[,2])]= 0.3
+  rvb_tensor[,,3][cbind(XY_pres[,1],XY_pres[,2])] = 0.3 
+  
+  surviving_sites = inner_join(XY_pres, XY_effect, by=c('x'='x', 'y'='y'))
+  rvb_tensor[,,1][cbind(surviving_sites[,1],surviving_sites[,2])] = 0.3
+  rvb_tensor[,,2][cbind(surviving_sites[,1],surviving_sites[,2])]= 0.3
+  rvb_tensor[,,3][cbind(surviving_sites[,1],surviving_sites[,2])] = 0.9 
+  
+  # 10 - add black belt
+  external_coord = which(is.na(height_map[2:(nrow-1),2:(ncol-1)]),arr.ind=TRUE)
+  is_on_border = apply(external_coord,1,FUN = function(x) 0!=sum(!is.na(height_map[(x[1]):(x[1]+2),(x[2]):(x[2]+2)])) )
+  coord_border = external_coord[is_on_border,]
+  rvb_tensor[,,1][cbind(coord_border[,1]+1,coord_border[,2]+1)] = 0.2
+  rvb_tensor[,,2][cbind(coord_border[,1]+1,coord_border[,2]+1)]= 0.2
+  rvb_tensor[,,3][cbind(coord_border[,1]+1,coord_border[,2]+1)] = 0.2 
+  
+  
+  # 11 - plot tensor
+  rvb_tensor2 = round(rvb_tensor*255)
+  raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
+  plt1 <- plotRGB(flip(raster_RGB,1))
+  
 }
 
 #################################################
 ## Figure 5 : results plot
 #################################################
 
-do_plot_fig5 = function(nr,nc,suitability_maps,choice,choix,){
+do_plot_fig5 = function(nrow,
+                        ncol,
+                        N_cycles,
+                        height_map,
+                        suitability_maps,
+                        choices,
+                        global_suitable_coordinates,
+                        colonisation_matrices,
+                        presence_map,
+                        cost){
+  # 0-preprocessing
   
   
+  # 1 - Structure of the RVB tensor (use : height maps, nrow, ncol)
+  rvb_tensor = array(0.95,c(nrow,ncol,3))
+  rvb_tensor[is.na(height_map)]=1
   
+  # 2 - add suitability (use : suitability_maps)
+  suit_t0 = suitability_maps[[1]]
+  suit_tN = suitability_maps[[length(suitability_maps)]]
+  suit_only_t0 = suit_t0>0.5 & suit_tN<0.5
+  suit_both = suit_t0>0.5 & suit_tN>0.5
+  suit_only_tN = suit_t0<0.5 & suit_tN>0.5
+  rvb_tensor[,,1][array(suit_only_t0)] = 0.65
+  rvb_tensor[,,2][array(suit_only_t0)] = 0.65
+  rvb_tensor[,,3][array(suit_only_t0)] = 0.65
+  rvb_tensor[,,1][array(suit_both)] = 0.75
+  rvb_tensor[,,2][array(suit_both)] = 0.75
+  rvb_tensor[,,3][array(suit_both)] = 0.75
+  rvb_tensor[,,1][array(suit_only_tN)] = 0.85
+  rvb_tensor[,,2][array(suit_only_tN)] = 0.85
+  rvb_tensor[,,3][array(suit_only_tN)] = 0.85
+  
+  # 3 - add naturally conquered area (use : suitability_maps, presence_map)
+  XY_pres = data.frame(which(presence_map==1,arr.ind = T))
+  colnames(XY_pres) = c("x","y")
+  XY_to_index = data.frame(gsc+1)
+  colnames(XY_to_index) = c("x","y","index")
+  pres_index = inner_join(XY_pres,XY_to_index,by = c("x", "y"))
+  
+  vectors_pres_effects_on_tN = summary((cm[[1]][,pres_index[,3]]))
+  colnames(vectors_pres_effects_on_tN) = c("index","i","effect")
+  tmp = vectors_pres_effects_on_tN
+  tmp$index = as.factor(tmp$index)
+  tmp$effect = 1 - tmp$effect
+  vectors_effects_on_tN = summary((cm[[1]][,pres_index[,3]]))
+  choices = choices[choices[,1]!=0,] 
+  
+  vectors_intro_effects_on_tN = summary(Matrix(apply(choices, 1, function (x) cm[[x[3]]][,x[5]]),sparse=T))
+  colnames(vectors_intro_effects_on_tN) = c("index","i","effect")
+  tmp2 = vectors_intro_effects_on_tN
+  tmp2$effect = 1 - tmp2$effect
+  tmp2$index = as.factor(tmp2$index)
+  
+  tmp_tot = rbind(tmp,tmp2)
+  tmp3 = aggregate(effect~(index),tmp_tot,FUN=function(x) prod(x))
+  tmp3$index = as.numeric(as.character(tmp3$index))
+  tmp3$effect = 1-tmp3$effect
+
+  tmp3 = tmp3[tmp3$effect>0.1,]
+  
+  XY_effect = inner_join(tmp3,XY_to_index,by = c("index"))
+  rvb_tensor[,,1][cbind(XY_effect$x,XY_effect$y)] = 0.5 - 0.3*XY_effect$effect
+  rvb_tensor[,,2][cbind(XY_effect$x,XY_effect$y)] = 0.7 + 0.25*XY_effect$effect
+  rvb_tensor[,,3][cbind(XY_effect$x,XY_effect$y)] = 0.5 - 0.3*XY_effect$effect
+  
+  # 3 - add finally conquered area (use : suitability_maps, choices)
+  rvb_tensor[,,1][cbind(choices[,1]+1,choices[,2])] = 0.8-0.5*choices[,3]/N_cycles
+  rvb_tensor[,,2][cbind(choices[,1]+1,choices[,2])] = 0.8-0.5*choices[,3]/N_cycles
+  rvb_tensor[,,3][cbind(choices[,1]+1,choices[,2])] = 0.1
+
+  # 9 - add initial presence site. By default red, then blue if it survived
+  rvb_tensor[,,1][cbind(XY_pres[,1],XY_pres[,2])] = 0.9
+  rvb_tensor[,,2][cbind(XY_pres[,1],XY_pres[,2])]= 0.3
+  rvb_tensor[,,3][cbind(XY_pres[,1],XY_pres[,2])] = 0.3 
+  
+  surviving_sites = inner_join(XY_pres, XY_effect, by=c('x'='x', 'y'='y'))
+  rvb_tensor[,,1][cbind(surviving_sites[,1],surviving_sites[,2])] = 0.3
+  rvb_tensor[,,2][cbind(surviving_sites[,1],surviving_sites[,2])]= 0.3
+  rvb_tensor[,,3][cbind(surviving_sites[,1],surviving_sites[,2])] = 0.9 
+  
+  # 10 - add black belt
+  external_coord = which(is.na(height_map[2:(nrow-1),2:(ncol-1)]),arr.ind=TRUE)
+  is_on_border = apply(external_coord,1,FUN = function(x) 0!=sum(!is.na(height_map[(x[1]):(x[1]+2),(x[2]):(x[2]+2)])) )
+  coord_border = external_coord[is_on_border,]
+  rvb_tensor[,,1][cbind(coord_border[,1]+1,coord_border[,2]+1)] = 0.2
+  rvb_tensor[,,2][cbind(coord_border[,1]+1,coord_border[,2]+1)]= 0.2
+  rvb_tensor[,,3][cbind(coord_border[,1]+1,coord_border[,2]+1)] = 0.2
+  
+  # 11 - plot tensor
+  rvb_tensor2 = round(rvb_tensor*255)
+  raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
+  
+  
+  # 12 - do cost plot
+  nr = seq(0,1,length=nrow)
+  nc = seq(0,1,length=ncol)
   data <- expand.grid(X=nr, Y=nc)
-  data$C1 <- c(as.matrix(cost1))
-  data$C2 <- c(as.matrix(cost2))
-  data$C3 <- c(as.matrix(cost3))
-  dat.temp = data[,c(2,1,3,4,5)]
-  names (dat.temp) <- c('X','Y',"(a) uniform cost","(b) west-to-east cost","(c) altitude cost")
-  kk2 = pivot_longer(dat.temp,cols=c(3,4,5),names_to = 'cost_type',values_to = "Cost") 
-  kk2$temperature = factor (kk2$cost_type,levels = c("(a) uniform cost","(b) west-to-east cost","(c) altitude cost"))
-  plt_cost = ggplot() + coord_fixed()+
-    geom_raster(data = kk2 , aes(x = X, y=Y,fill = Cost)) + theme(panel.background = element_blank(),strip.background = element_blank() ,line = element_blank(),axis.title = element_blank(),axis.text = element_blank(), axis.ticks = element_blank())+
-    facet_wrap(temperature~.)+
-    scale_fill_gradientn(colours = viridis(10),limits=c(100,500))
-  ggsave(name, width = 15, height = 5)
-  return(plt_cost)
+  data$Cost <- c(as.matrix(cost1))
+  ggplot() + 
+    coord_fixed()+
+    scale_fill_continuous(na.value = "white")+
+    geom_raster(data = data , aes(x = X, y=Y,fill = Cost)) + 
+    theme(panel.background = element_blank(),
+          strip.background = element_blank() ,
+          line = element_blank(),
+          axis.title = element_blank(),
+          axis.text = element_blank(),
+          axis.ticks = element_blank())
+  
+  # 14 - all plot
+  plotRGB(flip(raster_RGB,1))
+  
+  colnames(choices) = c("x","y","time_step","cost","index","impact")
+  ggplot(as.data.frame(choices), aes(x=time_step)) + 
+    xlim(0, 30)+
+    ylim(0, 8)+
+    geom_histogram(color="black", fill="white",bins = 30)+
+    theme_minimal(base_size = 40)
 }
 
-cm0 = cm[[1]]
-sp = apply(cm0,FUN = sum,2)
+#################################################
+## Figure 6 : Density choice fonction
+#################################################
 
-
-
-choix_ma = choix
-choix_ma = choix_ma[(choix_ma[,1]!=-1),]
-
-XY_ma = (choix[,c(1,2)]-1/2)/nrow
-#points(XY_ma[,2], XY_ma[,1],col="white",pch=19)
-
-possibilities = gsc
-possibilities = possibilities +1
-
-
-indices_pres = matrix(0,length(XY_pres[,1]))
-#XY_pres = XY_pres[nrow:1,]
-for (i in (1:length(XY_pres[,1]))){
-  h = NA
-  for (j in (1:length(possibilities[,1]))){
-    if ((possibilities[j,1]==(nrow+1-XY_pres[i,1]))&(possibilities[j,2]==(XY_pres[i,2]))){
-      h = possibilities[j,3]
-      break
+do_plot_fig6 = function(nrow,
+                        ncol,
+                        N_cycles,
+                        height_map,
+                        suitability_maps,
+                        global_suitable_coordinates,
+                        presence_map,
+                        choicesX){
+  # 0-preprocessing
+  
+  
+  # 1 - Structure of the RVB tensor (use : height maps, nrow, ncol)
+  rvb_tensor = array(0.95,c(nrow,ncol,3))
+  rvb_tensor[is.na(height_map)]=1
+  
+  # 2 - add suitability (use : suitability_maps)
+  suit_t0 = suitability_maps[[1]]
+  suit_tN = suitability_maps[[length(suitability_maps)]]
+  suit_only_t0 = suit_t0>0.5 & suit_tN<0.5
+  suit_both = suit_t0>0.5 & suit_tN>0.5
+  suit_only_tN = suit_t0<0.5 & suit_tN>0.5
+  rvb_tensor[,,1][array(suit_only_t0)] = 0.65
+  rvb_tensor[,,2][array(suit_only_t0)] = 0.65
+  rvb_tensor[,,3][array(suit_only_t0)] = 0.65
+  rvb_tensor[,,1][array(suit_both)] = 0.75
+  rvb_tensor[,,2][array(suit_both)] = 0.75
+  rvb_tensor[,,3][array(suit_both)] = 0.75
+  rvb_tensor[,,1][array(suit_only_tN)] = 0.85
+  rvb_tensor[,,2][array(suit_only_tN)] = 0.85
+  rvb_tensor[,,3][array(suit_only_tN)] = 0.85
+  
+  # 3 - add naturally conquered area (use : suitability_maps, presence_map)
+  XY_pres = data.frame(which(presence_map==1,arr.ind = T))
+  colnames(XY_pres) = c("x","y")
+  XY_to_index = data.frame(gsc+1)
+  colnames(XY_to_index) = c("x","y","index")
+  pres_index = inner_join(XY_pres,XY_to_index,by = c("x", "y"))
+  
+  # 9 - add initial presence site. By default red, then blue if it survived
+  rvb_tensor[,,1][cbind(XY_pres[,1],XY_pres[,2])] = 0.1
+  rvb_tensor[,,2][cbind(XY_pres[,1],XY_pres[,2])]= 0.6
+  rvb_tensor[,,3][cbind(XY_pres[,1],XY_pres[,2])] = 0.1
+  
+  
+  # 10 - add black belt
+  external_coord = which(is.na(height_map[2:(nrow-1),2:(ncol-1)]),arr.ind=TRUE)
+  is_on_border = apply(external_coord,1,FUN = function(x) 0!=sum(!is.na(height_map[(x[1]):(x[1]+2),(x[2]):(x[2]+2)])) )
+  coord_border = external_coord[is_on_border,]
+  rvb_tensor[,,1][cbind(coord_border[,1]+1,coord_border[,2]+1)] = 0.2
+  rvb_tensor[,,2][cbind(coord_border[,1]+1,coord_border[,2]+1)]= 0.2
+  rvb_tensor[,,3][cbind(coord_border[,1]+1,coord_border[,2]+1)] = 0.2 
+  
+  NN = length(choicesX)
+  for (i in 1:NN){
+    choice = choicesX[[i]]
+    tmp_c= choice[choice[,1]!=0,]
+    for (j in 1:length(tmp_c[,1])){
+      rvb_tensor[,,1][cbind(tmp_c[j,1],tmp_c[j,2])] = 0.8
+      rvb_tensor[,,2][cbind(tmp_c[j,1],tmp_c[j,2])]= rvb_tensor[,,2][cbind(tmp_c[j,1]+1,tmp_c[j,2]+1)]+0.8/100
+      rvb_tensor[,,3][cbind(tmp_c[j,1],tmp_c[j,2])] = 0.2 
     }
   }
-  if (!is.na(h)){
-    indices_pres[i] = possibilities[h,3]
-  }
-}
-print(indices_pres)
-
-coloni = as.matrix(cm[[1]])[,indices_pres]
-colo2 = 0.99999999 - coloni
-colo3 = round(1-apply(colo2, FUN= prod,2),2)
-
-#####
-##### Afficher la situation SAALEE (si aucune action légitime n'est entreprise)
-#####
-
-rvb_tensor = array(0.5,c(nrow,ncol,3))
-for (i in 1:length(c(colo3))){
-  if (colo3[i]>=0.95){
-    #0.5 + colo3[i]/2
-    rvb_tensor[possibilities[indices_pres[i],1],possibilities[indices_pres[i],2],1]=0.9#R
-    rvb_tensor[possibilities[indices_pres[i],1],possibilities[indices_pres[i],2],2]=0.0 #G
-    rvb_tensor[possibilities[indices_pres[i],1],possibilities[indices_pres[i],2],3]=0.9#B    
-  }
+  # 11 - plot tensor
+  rvb_tensor2 = round(rvb_tensor*255)
+  raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
+  plt1 <- plotRGB(flip(raster_RGB,1))
   
 }
-for (j in 1:length(cm[[1]][,1])){
-  rvb_tensor[possibilities[j,1],possibilities[j,2],1]= 0.6
-  rvb_tensor[possibilities[j,1],possibilities[j,2],2]= 0.6
-  rvb_tensor[possibilities[j,1],possibilities[j,2],3]= 0.6
-}
-indices_choix_ma2 = indices_choix_ma[indices_choix_ma!=0] 
-for (i in 1:length(indices_pres)){
-  for (j in 1:length(cm[[1]][,1])){
-    #○cm[[1]][j,indices_pres[i]]
-    s = cm[[1]][j,indices_pres[i]]
-    if (s!=0){
-      rvb_tensor[possibilities[j,1],possibilities[j,2],1]= s + rvb_tensor[possibilities[j,1],possibilities[j,2],1] -  rvb_tensor[possibilities[j,1],possibilities[j,2],1] * s
-      #rvb_tensor[possibilities[j,1],possibilities[j,2],2]= 0
-      rvb_tensor[possibilities[j,1],possibilities[j,2],2]= s + rvb_tensor[possibilities[j,1],possibilities[j,2],1] -  rvb_tensor[possibilities[j,1],possibilities[j,2],1] * s
-    }
-  }
-}
-indices_choix_ma2 = indices_choix_ma[indices_choix_ma!=0] 
-for (i in 1:length(indices_choix_ma2)){
-  for (j in 1:length(cm[[1]][,1])){
-    #○cm[[1]][j,indices_pres[i]]
-    s = cm[[1]][j,indices_choix_ma2[i]]
-    if (s!=0){
-      rvb_tensor[possibilities[j,1],possibilities[j,2],1]= s + rvb_tensor[possibilities[j,1],possibilities[j,2],1] -  rvb_tensor[possibilities[j,1],possibilities[j,2],1] * s
-      #rvb_tensor[possibilities[j,1],possibilities[j,2],2]= 0
-      rvb_tensor[possibilities[j,1],possibilities[j,2],3]= s + rvb_tensor[possibilities[j,1],possibilities[j,2],1] -  rvb_tensor[possibilities[j,1],possibilities[j,2],1] * s
-    }
-  }
-}
-indices_choix_ma2 = indices_choix_ma[indices_choix_ma!=0] 
-for (i in 1:length(indices_choix_ma2)){
-  x = possibilities[indices_choix_ma2[i],1]
-  y = possibilities[indices_choix_ma2[i],2]
-  rvb_tensor[x,y,1]=0.3 #R
-  rvb_tensor[x,y,2]=0.3 #G
-  rvb_tensor[x,y,3]=0.9 #B
-}
-for (i in 1:length(XY_pres[,1])){
-  if (colo3[i]>0.8){
-    rvb_tensor[nrow+1-XY_pres[i,1],XY_pres[i,2],1]=0.3 #R
-    rvb_tensor[nrow+1-XY_pres[i,1],XY_pres[i,2],2]=0.9 #G
-    rvb_tensor[nrow+1-XY_pres[i,1],XY_pres[i,2],3]=0.3 #B
-  }
-  if (colo3[i]<=0.8){
-    rvb_tensor[nrow+1-XY_pres[i,1],XY_pres[i,2],1]=0.9 #R
-    rvb_tensor[nrow+1-XY_pres[i,1],XY_pres[i,2],2]=0 #G
-    rvb_tensor[nrow+1-XY_pres[i,1],XY_pres[i,2],3]=0 #B
-  }
-}
-
-rvb_tensor[is.na(map)]=1
-rvb_tensor2 = round(rvb_tensor*255)
-raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
-
-plotRGB(flip(raster_RGB))
-#legend("topright",c("Surviving sites", "Naturally colonised sites", "Not surviving sites", "Planting sites AM", "Colonised sites due to AM"), cex=1.0, bty="y",
-#       fill=c("green","yellow","red","blue","purple"),inset=.04)
 
 
 
@@ -233,67 +448,72 @@ plotRGB(flip(raster_RGB))
 
 
 
-# ggplot() +
-#   geom_raster(data = DSM_HARV_df , 
-#               aes(x = x, y = y, 
-#                   fill = HARV_dsmCrop)) + 
-#   geom_raster(data = DSM_hill_HARV_df, 
-#               aes(x = x, y = y, 
-#                   alpha = HARV_DSMhill)) +  
-#   scale_fill_viridis_c() +  
-#   scale_alpha(range = c(0.15, 0.65), guide = "none") +  
-#   ggtitle("Elevation with hillshade") +
-#   coord_quickmap()
-# 
-# image.nan.better(map,col=col,zlim=range(map,na.rm=T),outside.below.color='brown',outside.above.color='brown',na.color='navy')
-# levelplot(map,col.regions = c(terrain.colors(29)), main="Terrain simulated")
-# 
-# 
-# cc0 = c_maps[[1]]
-# data <- expand.grid(X=nr, Y=nc)
-# colnames(data) = c("lontitude","latitude")
-# 
-# library(cowplot)
-# 
-# p1 <-levelplot(cc0,col.regions = c(viridis(29)), main="Temperatures simulated (2020)",at=seq(0, 16, length=30))
-# #ggplot(data, aes(X, Y, fill= cc0[nrow(cc0):1,])) + geom_tile() + scale_fill_gradient(low="blue", high="red",limits=Tmarge) + theme_ipsum()
-# cc1 = c_maps[[N_cycles]]
-# #ggplot(data, aes(X, Y, fill= cc1[,ncol(cc1):1])) + geom_tile() + scale_fill_gradient(low="blue", high="red",limits=Tmarge) + theme_ipsum()
-# p2 <-levelplot(cc1,col.regions = c(viridis(29)), main="Temperatures simulated (2070)",at=seq(0, 16, length=30))
-# plot_grid(p1,p2)
-# 
-# # Plot suitabilities over time
-# first_suit = 0*map
-# for (t in 0:N_cycles){
-#   back_suit = as.matrix(list_suit[[(N_cycles+1)-t]])
-#   first_suit[back_suit>0.9]=((N_cycles+1)-(t))
-# }
-# 
-# last_suit = 0*map
-# for (t in 0:N_cycles){
-#   forw_suit = as.matrix(list_suit[[t+1]])
-#   last_suit[forw_suit>0.9]=t
-# }
-# 
-# R = ((last_suit-first_suit)/N_cycles)[nrow(first_suit):1,]
-# G = (first_suit/N_cycles)[nrow(first_suit):1,]
-# B = (1 - last_suit/N_cycles)[nrow(first_suit):1,]
-# rvb_tensor = array(0.5,c(nrow,ncol,3))
-# rvb_tensor[,,1]=1*(first_suit==1 & last_suit==N_cycles) # red
-# rvb_tensor[,,2]=1*((first_suit!=1 & last_suit==N_cycles)|(first_suit==1 & last_suit!=N_cycles)) # green
-# rvb_tensor[,,3]=1*(first_suit==1 & last_suit!=N_cycles) # blue
-
-# rvb_tensor[(rvb_tensor[,,1]+rvb_tensor[,,2]+rvb_tensor[,,3])==0]=0.5
-# 
-# #rvb_tensor[,,3]= rvb_tensor[,,3] - 1 * (R==0 & G==0 & B==1)
-# rvb_tensor[rvb_tensor==-1 | FALSE]=0.5
-# rvb_tensor[is.na(map)]=1
-# 
-# ggplot(data, aes(lontitude, latitude, fill= cost)) + geom_tile() + scale_fill_gradient(low="blue", high="red",limits=c(100,200)) + theme_ipsum()
-# 
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=0:1, ylim=0:1)
+legend("topleft", legend =c('Suitable at the beginning only', 'Always suitable', 'Suitable at the end only',
+                            'Initially present sites'), pch=16, pt.cex=3, cex=1.5, bty='n',
+       col = c('grey40', 'grey50', 'gray60', 'green'))
+mtext("Species", at=0.2, cex=2)
+
+nr = seq(0,1,length=nrow)
+nc = seq(0,1,length=ncol)
+data <- expand.grid(X=nr, Y=nc)
+cccc = 600-cost3
+data$IntroductionTime <- c(as.matrix( (0 + 30*(cccc-min(cccc,na.rm=TRUE)) / (max(cccc,na.rm=TRUE)-min(cccc,na.rm=TRUE)))))
+ggplot() + 
+  coord_fixed()+
+  scale_fill_continuous(na.value = "white",low="yellow", high="brown")+
+  geom_raster(data = data , aes(x = X, y=Y,fill = IntroductionTime )) + 
+  theme(panel.background = element_blank(),
+        strip.background = element_blank() ,
+        line = element_blank(),
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+
+countmap = array(0,c(nrow,ncol))
+
+
+nr = seq(0,1,length=nrow)
+nc = seq(0,1,length=ncol)
+data <- expand.grid(X=nr, Y=nc)
+cccc = 600-cost3
+data$IntroductionTime <- c(as.matrix( (0 + 30*(cccc-min(cccc,na.rm=TRUE)) / (max(cccc,na.rm=TRUE)-min(cccc,na.rm=TRUE)))))
+ggplot() + 
+  coord_fixed()+
+  scale_fill_continuous(na.value = "white",low="yellow", high="brown")+
+  geom_raster(data = data , aes(x = X, y=Y,fill = IntroductionTime )) + 
+  theme(panel.background = element_blank(),
+        strip.background = element_blank() ,
+        line = element_blank(),
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
 

@@ -1,10 +1,9 @@
-#ifndef MODSTRING_H
-#define MODSTRING_H
+
+
 
 #include <RcppEigen.h>
 #include <iostream>
 #include <vector>
-#include <Rcpp.h>
 #include <numeric>      
 #include <algorithm>    
 #include <bits/stdc++.h> 
@@ -13,13 +12,18 @@
 #include <stdlib.h> 
 #include <string>
 #include <cstdlib>
-
+#include <random>
+#include <chrono>
+typedef Eigen::SparseVector<double> SpVec;
+typedef SpVec::InnerIterator InIterVec;
 
 // [[Rcpp::depends(RcppEigen)]]
 
 using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
+
+void rcpp_set_seed(unsigned int seed);
 
 int index_random_choice_non_uniform (Rcpp::NumericVector ununiform_probabilities);
 
@@ -39,5 +43,3 @@ Eigen::SparseMatrix<double> proba_matrix_mult2(Eigen::SparseMatrix<double> A,Eig
 
 Eigen::SparseMatrix<double> proba_matrix_mult3(Eigen::SparseMatrix<double> A,Eigen::SparseMatrix<double> B);
 
-
-#endif

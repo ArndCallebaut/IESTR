@@ -12,32 +12,23 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// optgenam3
-Rcpp::List optgenam3(Eigen::SparseMatrix<double> currentPresenceMatrix, std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix, Eigen::SparseMatrix<double> costMatrix, Rcpp::NumericMatrix migrationKernel, int threshold, double confidence, int npop, int nsur, int ngen);
-RcppExport SEXP _IESTR_optgenam3(SEXP currentPresenceMatrixSEXP, SEXP consecutiveSuitabilityMatrixSEXP, SEXP costMatrixSEXP, SEXP migrationKernelSEXP, SEXP thresholdSEXP, SEXP confidenceSEXP, SEXP npopSEXP, SEXP nsurSEXP, SEXP ngenSEXP) {
+// rcpp_set_seed
+void rcpp_set_seed(unsigned int seed);
+RcppExport SEXP _IESTR_rcpp_set_seed(SEXP seedSEXP) {
 BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type currentPresenceMatrix(currentPresenceMatrixSEXP);
-    Rcpp::traits::input_parameter< std::list<Eigen::SparseMatrix<double>> >::type consecutiveSuitabilityMatrix(consecutiveSuitabilityMatrixSEXP);
-    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type costMatrix(costMatrixSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type migrationKernel(migrationKernelSEXP);
-    Rcpp::traits::input_parameter< int >::type threshold(thresholdSEXP);
-    Rcpp::traits::input_parameter< double >::type confidence(confidenceSEXP);
-    Rcpp::traits::input_parameter< int >::type npop(npopSEXP);
-    Rcpp::traits::input_parameter< int >::type nsur(nsurSEXP);
-    Rcpp::traits::input_parameter< int >::type ngen(ngenSEXP);
-    rcpp_result_gen = Rcpp::wrap(optgenam3(currentPresenceMatrix, consecutiveSuitabilityMatrix, costMatrix, migrationKernel, threshold, confidence, npop, nsur, ngen));
-    return rcpp_result_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type seed(seedSEXP);
+    rcpp_set_seed(seed);
+    return R_NilValue;
 END_RCPP
 }
 // index_random_choice_non_uniform
-int index_random_choice_non_uniform(NumericVector ununiform_probabilities0);
+int index_random_choice_non_uniform(Rcpp::NumericVector ununiform_probabilities0);
 RcppExport SEXP _IESTR_index_random_choice_non_uniform(SEXP ununiform_probabilities0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type ununiform_probabilities0(ununiform_probabilities0SEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type ununiform_probabilities0(ununiform_probabilities0SEXP);
     rcpp_result_gen = Rcpp::wrap(index_random_choice_non_uniform(ununiform_probabilities0));
     return rcpp_result_gen;
 END_RCPP
@@ -242,7 +233,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_IESTR_optgenam3", (DL_FUNC) &_IESTR_optgenam3, 9},
+    {"_IESTR_rcpp_set_seed", (DL_FUNC) &_IESTR_rcpp_set_seed, 1},
     {"_IESTR_index_random_choice_non_uniform", (DL_FUNC) &_IESTR_index_random_choice_non_uniform, 1},
     {"_IESTR_generate_permutation4", (DL_FUNC) &_IESTR_generate_permutation4, 2},
     {"_IESTR_proba_matrix_mult3", (DL_FUNC) &_IESTR_proba_matrix_mult3, 2},
