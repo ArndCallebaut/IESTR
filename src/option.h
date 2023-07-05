@@ -15,18 +15,20 @@
 #include <thread>
 #include "maths_tools.h";
 #include "local_optimising_planting_choice.h";
-// [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::depends(RcppEigen)]]
 
 Eigen::SparseMatrix<double> rcpp_global_suitable_sites(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix);
 
 Rcpp::NumericMatrix rcpp_global_suitable_coordinates(Eigen::SparseMatrix<double>& globalSuitableSites);
 
-Eigen::SparseMatrix<double> rcpp_local_transition_matrix(Eigen::SparseMatrix<double> globalSuitableSites,Rcpp::NumericMatrix globalSuitableCoordinates,Rcpp::NumericMatrix migrationKernel);
+Eigen::SparseMatrix<double> rcpp_spread_matrix(Eigen::SparseMatrix<double> globalSuitableSites,
+                                               Rcpp::NumericMatrix globalSuitableCoordinates,
+                                               Rcpp::NumericMatrix migrationKernel);
 
-std::list<Eigen::SparseMatrix<double>> rcpp_transition_matrices(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix,Eigen::SparseMatrix<double> localTransitionMatrix,Rcpp::NumericMatrix globalSuitableCoordinates);
+std::list<Eigen::SparseMatrix<double>> rcpp_local_transition_matrix(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix,
+                                                                    Eigen::SparseMatrix<double> localTransitionMatrix,
+                                                                    Rcpp::NumericMatrix globalSuitableCoordinates);
 
-std::vector<Eigen::SparseMatrix<double>> rcpp_colonisation_matrices(std::list<Eigen::SparseMatrix<double>> transitionMatrices);
+std::vector<Eigen::SparseMatrix<double>> rcpp_transition_matrix(std::list<Eigen::SparseMatrix<double>> transitionMatrices);
 
 Eigen::SparseMatrix<double> rcpp_viable_sites(std::vector<Eigen::SparseMatrix<double>> colonisationMatrices);
 

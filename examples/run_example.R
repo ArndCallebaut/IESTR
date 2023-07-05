@@ -57,13 +57,13 @@ Trange = Tmax_alt_0 - (Tmin_alt_0 + Tadd_alt_1)
 Tmarge = c(Tmin_alt_0 + Tadd_alt_1, Tmax_alt_0+Tadd_cyc)
 
 # Algorithm - genetic algo caracteristics
-npop = 500
+npop = 300
 nsur = 100
-ngen = 30
+ngen = 20
 
 # Algorithm - optimum condition values
 threshold = 50
-confidence = 0.9
+confidence = 0.8
 
 # Species - caracteristics
 Trange_spe = c(8.8,9.1,11.6,11.9)
@@ -103,13 +103,8 @@ height_map = height_map(nrow,ncol)
 climate_maps = climat_maps_maker(height_map,Tadd_cyc,N_cycles)
 suitability_maps = suitability_maps(climate_maps,Trange_spe)
 presence_1st_area = presence_map(nrow,ncol,suitability_maps,height_map,lim2,nb_cell_occuped1)
-#presence_2nd_area = presence_map(nrow,ncol,suitability_maps,height_map,lim2,nb_cell_occuped2)
-#presence_3nd_area = presence_map(nrow,ncol,suitability_maps,height_map,lim3,nb_cell_occuped3)
-presence_4nd_area = presence_map_2(nrow,ncol,suitability_maps,height_map,N_cycles,40)
-
-presence_map = presence_1st_area + presence_4nd_area
-
-
+presence_2nd_area = presence_map_2(nrow,ncol,suitability_maps,height_map,N_cycles,40)
+presence_map = presence_1st_area + presence_2nd_area
 
 presence_map[is.na(presence_map)] = 0
 presence_map[0!=(presence_map)] = 1
@@ -125,7 +120,6 @@ cost3 = cost_map(nrow,ncol,height_map,cost_mapping3)
 #################################################
 
 do_plot_fig2(nr, nc, height_map, climate_maps, N_cycles)
-#do_plot_fig3(nr, nc, cost1,cost2, cost3)
 
 #################################################
 ## Results Standards
@@ -133,12 +127,9 @@ do_plot_fig2(nr, nc, height_map, climate_maps, N_cycles)
 
 gss = rcpp_global_suitable_sites(suitability_maps)
 gsc = rcpp_global_suitable_coordinates(gss)
-ltm = rcpp_local_transition_matrix(gss,gsc,migr_spe)
-tm = rcpp_transition_matrices(suitability_maps,ltm,gsc)
-cm = rcpp_colonisation_matrices(tm)
-
-
-
+ltm = rcpp_spread_matrix(gss,gsc,migr_spe)
+tm = rcpp_local_transition_matrix(suitability_maps,ltm,gsc)
+cm = rcpp_transition_matrix(tm)
 
 vs = rcpp_viable_sites(cm)
 vt = rcpp_viable_triplets(vs,cm,gsc,gss,cost1)
@@ -147,13 +138,14 @@ vv = rcpp_viable_values(vt,vs,gss,cm)
 
 do_plot_fig3(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map)
 
+do_plot_fig001(nrow,ncol,N_cycles,height_map,suitability_maps,gsc, cm,presence_map,cost1)
 
 ph = rcpp_pheromons(vt)
 ecp = rcpp_eval_current_prob(threshold,presence_map,cm,gss)
 ntp = threshold - which(cumsum(ecp)>0.95)[1] 
 
 po = rcpp_generate_population(ph,gss,npop,ntp)
-resultat1 = rcpp_algorithm_opt(ph,vt,po,cost1,presence_map,cm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
+resultat1 = rcpp_algorithm_opt(ph,vt,po,cost,presence_map,cm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
 choix1 = rcpp_result_to_choice(resultat1,vt)
 
 do_plot_fig4(nrow,ncol,N_cycles,height_map,suitability_maps,
@@ -182,7 +174,7 @@ do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,choix3,
 
 choix = list()
 
-NN = 10
+NN = 100
 
 for(i in 1:NN){
   message(i)
@@ -202,13 +194,25 @@ for (i in 1:NN){
 }
 
 
-do_plot_fig6(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,choix)
+do_plot_fig8(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap3)
+
+timecount3 = rep(0,N_cycles)
+for (i in 1:NN){
+  choice = choix[[i]]
+  for (i in 1:length(choice[,1])){
+    timecount3[choice[i,3]] = timecount3[choice[i,3]] + 1
+  }
+}
+
+
+
+
 
 choix10 = list()
-
-NN = 200
-
+NN = 100
 for(i in 1:NN){
+  set.seed(i*100)
+  rcpp_set_seed(i*100)
   message(i)
   resultat1 = rcpp_algorithm_opt(ph,vt,po,cost3,presence_map,cm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
   choix1 = rcpp_result_to_choice(resultat1,vt)
@@ -221,27 +225,47 @@ for (i in 1:NN){
   tmp_c= choice[choice[,1]!=0,]
   
   for (j in 1:length(tmp_c[,1])){
-    countmap33[tmp_c[j,1],tmp_c[j,2]] = countmap33[tmp_c[j,1],tmp_c[j,2]] +1
+    countmap33[tmp_c[j,1],tmp_c[j,2]] = countmap33[tmp_c[j,1],tmp_c[j,2]]+1
   }
 }
 
 
-do_plot_fig6(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,choix10)
+do_plot_fig8(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap33)
+
+timecount33 = rep(0,N_cycles)
+for (i in 1:NN){
+  choice = choix10[[i]]
+  for (i in 1:length(choice[,1])){
+    timecount33[choice[i,3]] = timecount33[choice[i,3]] + 1
+  }
+}
+
+
+library(ggplot2)
+den1 <- density(timecount3[1:30])
+den2 <- density(timecount33[1:30])
+
+plot(den, col = "blue",main = "Density plot")
 
 
 
+ggplot(mtcars, aes(x=as.factor(timecount33[1:30]), fill=as.factor(1:30) )) + 
+  geom_bar( ) +
+  scale_fill_grey(start = 0.25, end = 0.75) +
+  theme(legend.position="none")
 
 
+barplot(height=timecount3[1:30], 
+        names=as.character(1:30), 
+        xlab="timestep", 
+        ylab="occurences in 100 iterations",
+        cex.lab=1.4)
 
-
-
-
-
-
-
-
-
-
+barplot(height=timecount33[1:30], 
+        names=as.character(1:30), 
+        xlab="timestep", 
+        ylab="occurences in 100 iterations",
+        cex.lab=1.4)
 
 
 
@@ -275,7 +299,7 @@ ggplot() +
 
 
 
-npops = c(50,100,200,400,600,800)
+npops = c(50,100,150,200,250,400)
 nsurs = c(0.02,0.04,0.08,0.16,0.24,0.48)
 
 resultat_comparaison_cost = Matrix(0,6,6)
@@ -286,13 +310,16 @@ for (i in 1:6){
     
     message("Simulation; i=",i," j=",j)
     
+    set.seed(i*j*100)
+    rcpp_set_seed(i*j*100)
+    
     start.time <- Sys.time()
     
     npop = npops[i]
     nsur = nsurs[j] * npop
     
     po = rcpp_generate_population(ph,gss,npop,ntp)
-    resultat1 = rcpp_algorithm_opt(ph,vt,po,cost1,presence_map,cm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
+    resultat1 = rcpp_algorithm_opt(ph,vt,po,cost3,presence_map,cm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
     choix1 = rcpp_result_to_choice(resultat1,vt)
     
     end.time <- Sys.time()
@@ -307,10 +334,11 @@ for (i in 1:6){
 
 choix = list()
 
+
 # Algorithm - genetic algo caracteristics
-npop = 300
-nsur = 100
-ngen = 30
+npop = 100
+nsur = 10
+ngen = 5
 
 ph = rcpp_pheromons(vt)
 ecp = rcpp_eval_current_prob(threshold,presence_map,cm,gss)
@@ -318,7 +346,7 @@ ntp = threshold - which(cumsum(ecp)>0.95)[1]
 
 po = rcpp_generate_population(ph,gss,npop,ntp)
 
-for(i in 1:1000){
+for(i in 1:10){
   resultat1 = rcpp_algorithm_opt(ph,vt,po,cost1,presence_map,cm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
   choix1 = rcpp_result_to_choice(resultat1,vt)
   choix[[i]] = choix1

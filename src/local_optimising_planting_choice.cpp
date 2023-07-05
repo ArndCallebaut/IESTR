@@ -124,7 +124,7 @@ int optimise_remove_site(SparseMatrix<double> viablesValues2, int threshold, dou
 
 
 
-void optimise_add_site (Eigen::SparseMatrix<double> viablesValues2, int threshold, double confidence, Rcpp::NumericMatrix viablesTriplets, Rcpp::NumericMatrix population, int pop, int nbtoplant,  Eigen::SparseVector<double> current){
+void optimise_add_site(Eigen::SparseMatrix<double> viablesValues2, int threshold, double confidence, Rcpp::NumericMatrix viablesTriplets, Rcpp::NumericMatrix population, int pop, int nbtoplant,  Eigen::SparseVector<double> current){
   // We want to add a site
   int n1 = viablesValues2.rows();
   if (n1==0){

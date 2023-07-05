@@ -1,8 +1,6 @@
 #include <RcppEigen.h>
-//#include <RcppArmadillo.h>
 #include <iostream>
 #include <vector>
-//#include <Rcpp.h>
 #include <numeric>    
 #include <algorithm>    
 #include <bits/stdc++.h> 
@@ -15,15 +13,20 @@
 #include <thread>
 #include "maths_tools.h";
 #include "local_optimising_planting_choice.h";
-// [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::depends(RcppEigen)]]
+
 
 using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
 
 
-
+//' Establishes from the consecutiveSuitabilityMatrix what are the
+//' study sites in the map and attribute them an index used in 
+//' other functions.
+//' Warning : the indices start at 1.
+//'
+//' @param std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix
+//' @return suitable sites as a sparse matrix
 // [[Rcpp::export]]
 Eigen::SparseMatrix<double> rcpp_global_suitable_sites(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix){
   int nbr = consecutiveSuitabilityMatrix.back().rows();
@@ -55,6 +58,10 @@ Eigen::SparseMatrix<double> rcpp_global_suitable_sites(std::list<Eigen::SparseMa
   return(globalSuitableSites);
 }
 
+//' Calculate the coordinates of the suitable sites.
+//'
+//' @param Eigen::SparseMatrix<double> globalSuitableSites
+//' @return coordinates of the suitable sites as a matrix
 // [[Rcpp::export]]
 Rcpp::NumericMatrix rcpp_global_suitable_coordinates(Eigen::SparseMatrix<double> globalSuitableSites){
   int nbsites = globalSuitableSites.nonZeros();
@@ -69,8 +76,16 @@ Rcpp::NumericMatrix rcpp_global_suitable_coordinates(Eigen::SparseMatrix<double>
   return(globalSuitableCoordinates);
 }
 
+//' Calculate the spread_matrix
+//'
+//' @param Eigen::SparseMatrix<double> globalSuitableSites
+//' @param Rcpp::NumericMatrix globalSuitableCoordinates
+//' @param Rcpp::NumericMatrix migrationKernel
+//' @return Product of v1 and v2
 // [[Rcpp::export]]
-Eigen::SparseMatrix<double> rcpp_local_transition_matrix(Eigen::SparseMatrix<double> globalSuitableSites,Rcpp::NumericMatrix globalSuitableCoordinates,Rcpp::NumericMatrix migrationKernel){
+Eigen::SparseMatrix<double> rcpp_spread_matrix(Eigen::SparseMatrix<double> globalSuitableSites,
+                                               Rcpp::NumericMatrix globalSuitableCoordinates,
+                                               Rcpp::NumericMatrix migrationKernel){
   int nbr = globalSuitableSites.rows();
   int nbc = globalSuitableSites.cols();
   int i;
@@ -94,8 +109,16 @@ Eigen::SparseMatrix<double> rcpp_local_transition_matrix(Eigen::SparseMatrix<dou
   return (localTransitionMatrix);
 }
 
+//' Multiplies two doubles
+//'
+//' @param std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix
+//' @param Eigen::SparseMatrix<double> localTransitionMatrix
+//' @param Rcpp::NumericMatrix globalSuitableCoordinates
+//' @return Product of v1 and v2
 // [[Rcpp::export]]
-std::list<Eigen::SparseMatrix<double>> rcpp_transition_matrices(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix,Eigen::SparseMatrix<double> localTransitionMatrix,Rcpp::NumericMatrix globalSuitableCoordinates){
+std::list<Eigen::SparseMatrix<double>> rcpp_local_transition_matrix(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix,
+                                                                Eigen::SparseMatrix<double> localTransitionMatrix,
+                                                                Rcpp::NumericMatrix globalSuitableCoordinates){
   std::list<Eigen::SparseMatrix<double>> transitionMatrices;
   Eigen::SparseMatrix<double> transitionMatrix;
   int i=0;
@@ -117,7 +140,7 @@ std::list<Eigen::SparseMatrix<double>> rcpp_transition_matrices(std::list<Eigen:
 }
 
 // [[Rcpp::export]]
-std::vector<Eigen::SparseMatrix<double>> rcpp_colonisation_matrices(std::list<Eigen::SparseMatrix<double>> transitionMatrices){
+std::vector<Eigen::SparseMatrix<double>> rcpp_transition_matrix(std::list<Eigen::SparseMatrix<double>> transitionMatrices){
   std::vector<Eigen::SparseMatrix<double>> colonisationMatrices;
   colonisationMatrices.push_back(transitionMatrices.front());
   int k=1;
@@ -426,7 +449,7 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
     if(g == ngen - 1) {
       std::cout << "100.0%" << std::endl;
     } else if( g%ref_10==0) {
-      std::cout << ((double)(g))/((double)(ngen))*100.0 << "%-";
+      std::cout << ((double)(g))/((double)(ngen))*100.0 << "%-" << std::endl;
     }
     
     // **************************************************************************
