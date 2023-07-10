@@ -10,7 +10,7 @@ Warning : the indices start at 1.}
 rcpp_global_suitable_sites(consecutiveSuitabilityMatrix)
 }
 \arguments{
-\item{std::list<Eigen::SparseMatrix<double>>}{consecutiveSuitabilityMatrix}
+\item{consecutiveSuitabilityMatrix}{list of matrix of suitability for each timestep.}
 }
 \value{
 suitable sites as a sparse matrix

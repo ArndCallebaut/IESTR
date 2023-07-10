@@ -16,6 +16,7 @@
 #include "maths_tools.h";
 #include "local_optimising_planting_choice.h";
 
+
 Eigen::SparseMatrix<double> rcpp_global_suitable_sites(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix);
 
 Rcpp::NumericMatrix rcpp_global_suitable_coordinates(Eigen::SparseMatrix<double>& globalSuitableSites);
@@ -31,11 +32,6 @@ std::list<Eigen::SparseMatrix<double>> rcpp_local_transition_matrix(std::list<Ei
 std::vector<Eigen::SparseMatrix<double>> rcpp_transition_matrix(std::list<Eigen::SparseMatrix<double>> transitionMatrices);
 
 Eigen::SparseMatrix<double> rcpp_viable_sites(std::vector<Eigen::SparseMatrix<double>> colonisationMatrices);
-
-/*
-Eigen::SparseVector<double> rcpp_get_current_vector(Eigen::SparseMatrix<double> currentPresenceMatrix,
-                                                    std::vector<Eigen::SparseMatrix<double>> colonisationMatrices,
-                                                    Eigen::SparseMatrix<double> globalSuitableSites);*/
 
 Rcpp::NumericMatrix rcpp_viable_triplets(Eigen::SparseMatrix<double> viableSites,
                                          std::list<Eigen::SparseMatrix<double>> colonisationMatrices,
@@ -54,8 +50,6 @@ NumericVector rcpp_eval_current_prob(int threshold,
                                      Eigen::SparseMatrix<double> globalSuitableSites);
 
 Rcpp::NumericVector rcpp_pheromons(Rcpp::NumericMatrix viablesTriplets);
-  
-
   
 Rcpp::NumericVector rcpp_generate_population(Rcpp::NumericVector pheromons,Eigen::SparseMatrix<double> globalSuitableSites,int npop, int nbtoplant);
 
@@ -80,9 +74,3 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
 
 Rcpp::NumericMatrix rcpp_result_to_choice(Rcpp::NumericMatrix lastPopulation,Rcpp::NumericMatrix viablesTriplets);
 
-
-
-
-
-
-//arma::sp_mat global_suitable_sites(std::list<arma::sp_mat> consecutiveSuitabilityMatrix);

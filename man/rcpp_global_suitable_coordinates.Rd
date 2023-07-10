@@ -7,7 +7,7 @@
 rcpp_global_suitable_coordinates(globalSuitableSites)
 }
 \arguments{
-\item{Eigen::SparseMatrix<double>}{globalSuitableSites}
+\item{globalSuitableSites}{support matrix containing index of each sites}
 }
 \value{
 coordinates of the suitable sites as a matrix

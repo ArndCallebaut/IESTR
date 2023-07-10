@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_local_transition_matrix}
 \alias{rcpp_local_transition_matrix}
-\title{Multiplies two doubles}
+\title{Calculate the local transition matrices from the spread matrix and suitability matrices}
 \usage{
 rcpp_local_transition_matrix(
   consecutiveSuitabilityMatrix,
@@ -11,15 +11,15 @@ rcpp_local_transition_matrix(
 )
 }
 \arguments{
-\item{std::list<Eigen::SparseMatrix<double>>}{consecutiveSuitabilityMatrix}
+\item{std::list<Eigen::SparseMatrix<double>>}{consecutiveSuitabilityMatrix list of suitability matrix}
 
-\item{Eigen::SparseMatrix<double>}{localTransitionMatrix}
+\item{Eigen::SparseMatrix<double>}{localTransitionMatrix matrix used to model spread behavior of the species without suitability}
 
-\item{Rcpp::NumericMatrix}{globalSuitableCoordinates}
+\item{Rcpp::NumericMatrix}{globalSuitableCoordinates support matrix coordinates of each sites}
 }
 \value{
-Product of v1 and v2
+list of matrix used to model spread behavior of the species with suitability, between two adjacent timestep
 }
 \description{
-Multiplies two doubles
+Calculate the local transition matrices from the spread matrix and suitability matrices
 }

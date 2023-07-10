@@ -8,7 +8,6 @@
 #include <numeric>      
 #include <algorithm>    
 #include <bits/stdc++.h> 
-#include <bits/stdc++.h>
 #include <iostream>
 #include <stdlib.h> 
 #include <string>
@@ -16,18 +15,29 @@
 #include "maths_tools.h";
 
 // [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::depends(Matrix, RcppArmadillo)]]
+// [[Rcpp::depends(Matrix)]]
 
 using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
 
-int half_random_add_site(SparseMatrix<double> viablesValues2, 
-                             int threshold, double confidence, 
+//' (obsolete) test if removing each site can allow to still reach the threshold with a given confidence
+//' then choose randomly to remove it from the individual.
+//'
+//' @param viablesValues2 matrix of effects of introduction of each choice.
+//' @param threshold number of sites colonised desired.
+//' @param confidence matrix of effects of introduction of each choice.
+//' @param viablesTriplets link between sites&time and viablesValues2.
+//' @param population total population of the current generation in the evolutionnary algorithm.
+//' @param pop index of the studied individual of the population
+//' @param current current probabilities of presence of the species at the end of the cycles, with the unchanged individual. 
+int half_random_add_site(Eigen::SparseMatrix<double> viablesValues2, 
+                             int threshold, 
+                             double confidence, 
                              Rcpp::NumericMatrix viablesTriplets, 
                              Rcpp::NumericMatrix population, 
-                             int pop, int nbtoplant,  
-                             Eigen::SparseVector<double>& current){
+                             int pop,  
+                             Eigen::SparseVector<double> current){
   
   int n = population.cols();
   if (n==0){
@@ -52,11 +62,9 @@ int half_random_add_site(SparseMatrix<double> viablesValues2,
       }
     }
   }
-  
   if (elimination_index ==-1){
     return(-1);
   }
-  
   if (elimination_index >=0){
     for (Eigen::SparseMatrix<double>::InnerIterator it(viablesValues2,population(pop,elimination_index)); it; ++it) {
       current.coeffRef(it.index()-1) = (current.coeffRef(it.index()-1)-it.value())/(1-it.value());
@@ -67,16 +75,23 @@ int half_random_add_site(SparseMatrix<double> viablesValues2,
   return(-1);
 }
 
-
-
-
-
-
-
-
-
-
-int optimise_remove_site(SparseMatrix<double> viablesValues2, int threshold, double confidence, Rcpp::NumericMatrix viablesTriplets, Rcpp::NumericMatrix population, int pop, int nbtoplant,  Eigen::SparseVector<double>& current){
+//' test if removing each site can allow to still reach the threshold with a given confidence
+//' then choose the more expensive choice to remove it from the individual.
+//'
+//' @param viablesValues2 matrix of effects of introduction of each choice.
+//' @param threshold number of sites colonised desired.
+//' @param confidence matrix of effects of introduction of each choice.
+//' @param viablesTriplets link between sites&time and viablesValues2.
+//' @param population total population of the current generation in the evolutionnary algorithm.
+//' @param pop index of the studied individual of the population
+//' @param current current probabilities of presence of the species at the end of the cycles, with the unchanged individual. 
+int optimise_remove_site(Eigen::SparseMatrix<double> viablesValues2, 
+                         int threshold, 
+                         double confidence, 
+                         Rcpp::NumericMatrix viablesTriplets, 
+                         Rcpp::NumericMatrix population, 
+                         int pop, 
+                         Eigen::SparseVector<double> current){
   // We want to remove a site
   int n = population.cols();
   if (n==0){
@@ -115,16 +130,23 @@ int optimise_remove_site(SparseMatrix<double> viablesValues2, int threshold, dou
   return(-1);
 }
 
-
-
-
-
-
-
-
-
-
-void optimise_add_site(Eigen::SparseMatrix<double> viablesValues2, int threshold, double confidence, Rcpp::NumericMatrix viablesTriplets, Rcpp::NumericMatrix population, int pop, int nbtoplant,  Eigen::SparseVector<double> current){
+//' test if adding a site can allow to reach the threshold with a given confidence
+//' then choose the less expensive choice.
+//'
+//' @param viablesValues2 matrix of effects of introduction of each choice.
+//' @param threshold number of sites colonised desired.
+//' @param confidence desired confidence of reaching a certain number of sites
+//' @param viablesTriplets link between sites&time and viablesValues2.
+//' @param population total population of the current generation in the evolutionnary algorithm.
+//' @param pop index of the studied individual of the population
+//' @param current current probabilities of presence of the species at the end of the cycles, with the unchanged individual. 
+void optimise_add_site(Eigen::SparseMatrix<double> viablesValues2, 
+                       int threshold, 
+                       double confidence, 
+                       Rcpp::NumericMatrix viablesTriplets, 
+                       Rcpp::NumericMatrix population, 
+                       int pop, 
+                       Eigen::SparseVector<double> current){
   // We want to add a site
   int n1 = viablesValues2.rows();
   if (n1==0){
