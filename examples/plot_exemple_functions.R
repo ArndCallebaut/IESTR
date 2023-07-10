@@ -6,7 +6,7 @@ library(ggplot2)
 library(cowplot)
 library(viridis)
 library(wesanderson)
-library (tidyverse)
+library(tidyverse)
 library(gridExtra)
 library(wesanderson)
 library(dplyr)
@@ -682,6 +682,13 @@ do_plot_fig001 = function(nrow,
   
   rvb_tensor[,,1] = val_tensor
   
+  
+  external_coord = which(is.na(height_map[2:(nrow-1),2:(ncol-1)]),arr.ind=TRUE)
+  is_on_border = apply(external_coord,1,FUN = function(x) 0!=sum(!is.na(height_map[(x[1]):(x[1]+2),(x[2]):(x[2]+2)])) )
+  coord_border = external_coord[is_on_border,]
+  rvb_tensor[,,1][cbind(coord_border[,1]+1,coord_border[,2]+1)] = 0.2
+  rvb_tensor[,,2][cbind(coord_border[,1]+1,coord_border[,2]+1)]= 0.2
+  rvb_tensor[,,3][cbind(coord_border[,1]+1,coord_border[,2]+1)] = 0.2 
   
   # 1 - Structure of the RVB tensor (use : height maps, nrow, ncol)
   
