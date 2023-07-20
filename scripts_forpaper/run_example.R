@@ -6,38 +6,47 @@ graphics.off()
 #################################################
 #################################################
 
-
-
 ### Imports
-library("usethis")
-library("roxygen2")
-library("devtools")
-library(Rcpp)
-library(RcppEigen)
-library(methods)
-library(lattice)
-library(ggplot2)
+library(IESTR)
 library(dplyr)
 library(purrr)
 library(Matrix)
-library("viridis")
-library("IESTR")
-library(hrbrthemes)
 library(grid)
 library(raster)
-source("examples/building_example_functions.R")
-source("examples/plot_exemple_functions.R")
+library(lattice)
+library(ggplot2)
+library(viridis)
+library(hrbrthemes)
+library(methods)
+
+### call for support scripts.
+source("./scripts_forpaper/building_example_functions.R")
+source("./scripts_forpaper/plot_exemple_functions.R")
+
 ### Global Details
-col = c('green3','green2','blue1','blue3')
 col = terrain.colors(20)
 hea = (viridis(10))
 
 #################################################
-## Initialisation & Variables
+## Initialisation & Variable
 #################################################
 
+# Setting seed for R and C++
 set.seed(17)
 rcpp_set_seed(17)
+
+# Algorithm - genetic algo caracteristics
+npop = 300 #size of the initial population
+nsur = 100 #size of the surviving population
+ngen = 20 #number of generations
+
+# Algorithm - optimum condition values
+threshold = 50
+confidence = 0.8
+
+#################################################
+## Maps construction
+#################################################
 
 # Map - size
 nrow = 50
@@ -50,313 +59,98 @@ N_cycles = 30
 Tadd_cyc = 1.5
 
 # Map - space caracteristics
-Tmin_alt_0 = 10
-Tmax_alt_0 = 15
+ltmin_alt_0 = 10
+ltmax_alt_0 = 15
 Tadd_alt_1 = -8
-Trange = Tmax_alt_0 - (Tmin_alt_0 + Tadd_alt_1)
-Tmarge = c(Tmin_alt_0 + Tadd_alt_1, Tmax_alt_0+Tadd_cyc)
-
-# Algorithm - genetic algo caracteristics
-npop = 300
-nsur = 100
-ngen = 20
-
-# Algorithm - optimum condition values
-threshold = 50
-confidence = 0.8
+Trange = ltmax_alt_0 - (ltmin_alt_0 + Tadd_alt_1)
+ltmarge = c(ltmin_alt_0 + Tadd_alt_1, ltmax_alt_0+Tadd_cyc)
 
 # Species - caracteristics
 Trange_spe = c(8.8,9.1,11.6,11.9)
 migr_spe = array(0.01, c(3, 3))
 migr_spe[2,2] = 1
 
-# Species - presence - area 1
-nb_cell_occuped1 = 10
-xmin = 0.15
-xmax = 0.34
-ymin = 0.2
-ymax = 0.34
-lim1 = c(xmin,xmax,ymin,ymax)
-
 # Species - presence - area 2
-nb_cell_occuped2 = 10
+nb_cell_occuped1 = 10
 xmin = 0.72
 xmax = 0.9
 ymin = 0.72
 ymax = 0.9
 lim2 = c(xmin,xmax,ymin,ymax)
 
-# Species - presence - area 3
-nb_cell_occuped3 = 10
-xmin = 0.05
-xmax = 0.21
-ymin = 0.25
-ymax = 0.45
-lim3 = c(xmin,xmax,ymin,ymax)
-
-#################################################
-## Maps construction
-#################################################
-
-# Common for all the figures
+# Construction of the maps used for the case study
 height_map = height_map(nrow,ncol)
 climate_maps = climat_maps_maker(height_map,Tadd_cyc,N_cycles)
 suitability_maps = suitability_maps(climate_maps,Trange_spe)
-presence_1st_area = presence_map(nrow,ncol,suitability_maps,height_map,lim2,nb_cell_occuped1)
-presence_2nd_area = presence_map_2(nrow,ncol,suitability_maps,height_map,N_cycles,40)
-presence_map = presence_1st_area + presence_2nd_area
-
-presence_map[is.na(presence_map)] = 0
-presence_map[0!=(presence_map)] = 1
-presence_map = Matrix(presence_map, sparse = T)
-presence_map = as(presence_map,"dgCMatrix")[nrow:1,]
-
+presence_1st_area = presence_map_2(nrow,ncol,suitability_maps,height_map,N_cycles, 40) # find 40 sites in suitable sites that will not be suitable in the futur
+presence_2nd_area = presence_map(nrow,ncol,suitability_maps,height_map,lim2,nb_cell_occuped1) 
+presence_map = presence_concatenate(presence_1st_area ,presence_2nd_area,nrow)
 cost1 = cost_map(nrow,ncol,height_map,cost_mapping1)
-cost2 = cost_map(nrow,ncol,height_map,cost_mapping2)
 cost3 = cost_map(nrow,ncol,height_map,cost_mapping3)
 
-#################################################
-## Maps plot
-#################################################
-
+# A plot of the height map & temperatures at the beginning/at the end
 do_plot_fig2(nr, nc, height_map, climate_maps, N_cycles)
 
 #################################################
-## Results Standards
+## IESTR - case n°1 : Uniform costs 
 #################################################
 
+# All of this part describes how IESTR is used, step by step by step.
+# There are to main result : 
+# tm = the transition matrix, that allow to know the impact on the final state of the system of any introduction
+# choix1 = the calculated optimal introductions in space and time.
+# These can be directly calculated from the "IESTR_process" function for a quickier use of IESTR functionnalities.
+
+#Utility indices of suitable sites used in the package; 
 gss = rcpp_global_suitable_sites(suitability_maps)
 gsc = rcpp_global_suitable_coordinates(gss)
-ltm = rcpp_spread_matrix(gss,gsc,migr_spe)
-tm = rcpp_local_transition_matrix(suitability_maps,ltm,gsc)
-cm = rcpp_transition_matrix(tm)
 
-vs = rcpp_viable_sites(cm)
-vt = rcpp_viable_triplets(vs,cm,gsc,gss,cost1)
-vv = rcpp_viable_values(vt,vs,gss,cm)
-#cv = rcpp_get_current_vector(pres,cm,gss)
+do_plot_fig3(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map) # inital presence of the species
 
-do_plot_fig3(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map)
+#Creation of the transition matrices
+#If you have more informations about spread dynamics than just a migration Kernel, this can be included here. (Contact the author for more infos)
+sm = rcpp_spread_matrix(gss,gsc,migr_spe)
+ltm = rcpp_local_transition_matrix(suitability_maps,sm,gsc)
+tm = rcpp_transition_matrix(ltm)
 
-do_plot_fig001(nrow,ncol,N_cycles,height_map,suitability_maps,gsc, cm,presence_map,cost1)
+#Utility reindicing of values of the transition matrices
+vs = rcpp_viable_sites(tm)
+vt = rcpp_viable_triplets(vs,tm,gsc,gss,cost1)
+vv = rcpp_viable_values(vt,vs,gss,tm)
 
-ph = rcpp_pheromons(vt)
-ecp = rcpp_eval_current_prob(threshold,presence_map,cm,gss)
-ntp = threshold - which(cumsum(ecp)>0.95)[1] 
+#Pre-processing for the optimisation part
+ph = rcpp_pheromons(vt) #Weight for each viable pair of time&site of introduction (more weight = more chance to be choosen)
+ecp = rcpp_eval_current_prob(threshold,presence_map,tm,gss) #probability of number of site with presence at the end of the period.
+ntp = threshold - which(cumsum(ecp)>0.95)[1] #evaluated maximum number of sites of introduction necessary to reach the threshold.
+po = rcpp_generate_population(ph,gss,npop,ntp) #generate the initial population for the genetic algorithm.
 
-po = rcpp_generate_population(ph,gss,npop,ntp)
-resultat1 = rcpp_algorithm_opt(ph,vt,po,cost,presence_map,cm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
+#Genetic algorithm use to optimise introduction choices
+resultat1 = rcpp_algorithm_opt(ph,vt,po,cost,presence_map,tm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
+
+#Results filtered
 choix1 = rcpp_result_to_choice(resultat1,vt)
 
+#Show how would evolve the system without introduction
 do_plot_fig4(nrow,ncol,N_cycles,height_map,suitability_maps,
              global_suitable_coordinates,colonisation_matrices,presence_map)
 
+#Show how would evolve the system with the introduction
 do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,choix1,
              global_suitable_coordinates,colonisation_matrices,presence_map)
 
 
 #################################################
-## Resultant plot
+## IESTR - case n°2 : Non-uniform costs 
 #################################################
 
-vt3 = rcpp_viable_triplets(vs,cm,gsc,gss,cost3)
-vv3 = rcpp_viable_values(vt3,vs,gss,cm)
+vt3 = rcpp_viable_triplets(vs,tm,gsc,gss,cost3)
+vv3 = rcpp_viable_values(vt3,vs,gss,tm)
 ph3 = rcpp_pheromons(vt3)
 po3 = rcpp_generate_population(ph3,gss,npop,ntp)
-resultat3 = rcpp_algorithm_opt(ph3,vt3,po3,cost3,presence_map,cm,gss,vv3,threshold,confidence,npop,nsur,ngen,ntp)
+resultat3 = rcpp_algorithm_opt(ph3,vt3,po3,cost3,presence_map,tm,gss,vv3,threshold,confidence,npop,nsur,ngen,ntp)
 choix3 = rcpp_result_to_choice(resultat3,vt3)
+
+#Show how would evolve the system with the introduction
 do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,choix3,
              global_suitable_coordinates,colonisation_matrices,presence_map)
-
-#################################################
-## Run the program over and over
-#################################################
-
-choix = list()
-
-NN = 100
-
-for(i in 1:NN){
-  message(i)
-  resultat1 = rcpp_algorithm_opt(ph,vt,po,cost1,presence_map,cm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
-  choix1 = rcpp_result_to_choice(resultat1,vt)
-  choix[[i]] = choix1
-}
-
-countmap3 = array(0,c(nrow,ncol))
-for (i in 1:NN){
-  choice = choix[[i]]
-  tmp_c= choice[choice[,1]!=0,]
-  
-  for (j in 1:length(tmp_c[,1])){
-    countmap3[tmp_c[j,1],tmp_c[j,2]] = countmap3[tmp_c[j,1],tmp_c[j,2]] +1
-  }
-}
-
-
-do_plot_fig8(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap3)
-
-timecount3 = rep(0,N_cycles)
-for (i in 1:NN){
-  choice = choix[[i]]
-  for (i in 1:length(choice[,1])){
-    timecount3[choice[i,3]] = timecount3[choice[i,3]] + 1
-  }
-}
-
-
-
-
-
-choix10 = list()
-NN = 100
-for(i in 1:NN){
-  set.seed(i*100)
-  rcpp_set_seed(i*100)
-  message(i)
-  resultat1 = rcpp_algorithm_opt(ph,vt,po,cost3,presence_map,cm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
-  choix1 = rcpp_result_to_choice(resultat1,vt)
-  choix10[[i]] = choix1
-}
-
-countmap33 = array(0,c(nrow,ncol))
-for (i in 1:NN){
-  choice = choix10[[i]]
-  tmp_c= choice[choice[,1]!=0,]
-  
-  for (j in 1:length(tmp_c[,1])){
-    countmap33[tmp_c[j,1],tmp_c[j,2]] = countmap33[tmp_c[j,1],tmp_c[j,2]]+1
-  }
-}
-
-
-do_plot_fig8(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap33)
-
-timecount33 = rep(0,N_cycles)
-for (i in 1:NN){
-  choice = choix10[[i]]
-  for (i in 1:length(choice[,1])){
-    timecount33[choice[i,3]] = timecount33[choice[i,3]] + 1
-  }
-}
-
-
-library(ggplot2)
-den1 <- density(timecount3[1:30])
-den2 <- density(timecount33[1:30])
-
-plot(den, col = "blue",main = "Density plot")
-
-
-
-ggplot(mtcars, aes(x=as.factor(timecount33[1:30]), fill=as.factor(1:30) )) + 
-  geom_bar( ) +
-  scale_fill_grey(start = 0.25, end = 0.75) +
-  theme(legend.position="none")
-
-
-barplot(height=timecount3[1:30], 
-        names=as.character(1:30), 
-        xlab="timestep", 
-        ylab="occurences in 100 iterations",
-        cex.lab=1.4)
-
-barplot(height=timecount33[1:30], 
-        names=as.character(1:30), 
-        xlab="timestep", 
-        ylab="occurences in 100 iterations",
-        cex.lab=1.4)
-
-
-
-
-
-
-
-
-
-nr = seq(0,1,length=nrow)
-nc = seq(0,1,length=ncol)
-data <- expand.grid(X=nr, Y=nc)
-cccc = countmap3 + (cost3*0)
-data$IntroductionTime <- c(as.matrix( cccc ))
-ggplot() + 
-  coord_fixed()+
-  scale_fill_continuous(na.value = "white",low="yellow", high="brown")+
-  geom_raster(data = data , aes(x = X, y=Y,fill = IntroductionTime )) + 
-  theme(panel.background = element_blank(),
-        strip.background = element_blank() ,
-        line = element_blank(),
-        axis.title = element_blank(),
-        axis.text = element_blank(),
-        axis.ticks = element_blank())
-
-
-
-
-
-
-
-
-
-npops = c(50,100,150,200,250,400)
-nsurs = c(0.02,0.04,0.08,0.16,0.24,0.48)
-
-resultat_comparaison_cost = Matrix(0,6,6)
-resultat_comparaison_time = Matrix(0,6,6)
-
-for (i in 1:6){
-  for (j in 1:6){
-    
-    message("Simulation; i=",i," j=",j)
-    
-    set.seed(i*j*100)
-    rcpp_set_seed(i*j*100)
-    
-    start.time <- Sys.time()
-    
-    npop = npops[i]
-    nsur = nsurs[j] * npop
-    
-    po = rcpp_generate_population(ph,gss,npop,ntp)
-    resultat1 = rcpp_algorithm_opt(ph,vt,po,cost3,presence_map,cm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
-    choix1 = rcpp_result_to_choice(resultat1,vt)
-    
-    end.time <- Sys.time()
-    time.taken <- end.time - start.time
-    
-    resultat_comparaison_cost[i,j]=sum(choix1[,4])
-    resultat_comparaison_time[i,j]=as.numeric(time.taken)
-  }
-}
-
-
-
-choix = list()
-
-
-# Algorithm - genetic algo caracteristics
-npop = 100
-nsur = 10
-ngen = 5
-
-ph = rcpp_pheromons(vt)
-ecp = rcpp_eval_current_prob(threshold,presence_map,cm,gss)
-ntp = threshold - which(cumsum(ecp)>0.95)[1] 
-
-po = rcpp_generate_population(ph,gss,npop,ntp)
-
-for(i in 1:10){
-  resultat1 = rcpp_algorithm_opt(ph,vt,po,cost1,presence_map,cm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
-  choix1 = rcpp_result_to_choice(resultat1,vt)
-  choix[[i]] = choix1
-}
-
-
-
-
-
-
-
-
 

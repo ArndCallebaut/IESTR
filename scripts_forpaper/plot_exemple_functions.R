@@ -11,11 +11,6 @@ library(gridExtra)
 library(wesanderson)
 library(dplyr)
 
-#################################################
-## Figure 2 : presentation of the island & t°
-#################################################
-
-
 
 #################################################
 ## Figure 2 : presentation of the island & t°
@@ -697,70 +692,6 @@ do_plot_fig001 = function(nrow,
   raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
   plt1 <- plotRGB(flip(raster_RGB,1))
 }
-do_plot_fig001(nrow,ncol,N_cycles,height_map,suitability_maps,gsc, cm,presence_map,cost1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-opt_each_site = apply(indices_pres2,FUN=max,2)
-
-diag_cms = matrix(0,N_cycles,length(gsc[,1]))
-for (i in 1:N_cycles){
-  cm_loc = cm[[i]]
-  diag_cms[i,] = diag(cm_loc)
-}
-
-maxi_diags = apply(diag_cms,FUN=max,2)
-
-plot(maxi_diags,opt_each_site)
-
-### ### ###
-efficienty3 = maxi_diags / cost[gsc[,c(1,2)]+1]
-eff3 = efficienty3 / max(efficienty3)
-#eff = (log(efficienty)-min(log(efficienty)))/(max(log(efficienty))-min(log(efficienty)))
-
-eff_tensor3 = array(0.5,c(nrow,ncol,3))
-
-for (i in 1:length(efficienty3)){
-  #rvb_tensor[nrow+1-XY_pres[i,1],XY_pres[i,2],1]=1 #R
-  eff_tensor3[gsc[i,1]+1,gsc[i,2]+1,2]= eff3[i]  #G
-  eff_tensor3[gsc[i,1]+1,gsc[i,2]+1,3]= 1-eff3[i]#B
-}
-
-eff_tensor3 [is.na(map)]=1
-eff_tensor3 = round(eff_tensor3*255)
-raster_RGB = stack(raster(eff_tensor3[,,1]),raster(eff_tensor3[,,2]),raster(eff_tensor3[,,3]))
-#graphics.off()
-plotRGB(flip(raster_RGB))
-legend("topright",c("High effect ratio", "Low effect ratio"), cex=1.0, bty="y",
-       fill=c("green","purple"),inset=.04)
-
-
-
-
-
 
 
 

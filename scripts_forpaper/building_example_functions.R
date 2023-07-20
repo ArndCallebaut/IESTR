@@ -159,12 +159,18 @@ presence_map_2 = function(nrow,ncol,suit_maps,height_map,N_cycles,nb_cell){
   return(pres)
 }
 
+presence_concatenate = function(pres1,pres2,nrow){
+  presence_map = pres1 + pres2
+  presence_map[is.na(presence_map)] = 0
+  presence_map[0!=(presence_map)] = 1
+  presence_map = Matrix(presence_map, sparse = T)
+  presence_map = as(presence_map,"dgCMatrix")[nrow:1,]
+}
+
 ### ### ###
 ### Function for presence on the map
 ###
 
-ngens = c(200,400,600,800,1000)
-n
 
 
 
