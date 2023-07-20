@@ -112,7 +112,6 @@ NumericVector generate_permutation3(int permutation_size, int total_size){
   for (int i = 0; i < total_size; i++){
     v(i) = i ;
   }
-  //std::cout << "OK here it's done." << std::endl;
   
   Rcpp::NumericVector result(permutation_size);
   int indice_max = total_size;

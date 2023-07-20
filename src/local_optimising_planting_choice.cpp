@@ -1,6 +1,4 @@
 
-
-
 #include <RcppEigen.h>
 #include <iostream>
 #include <vector>
