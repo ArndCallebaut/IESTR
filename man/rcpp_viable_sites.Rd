@@ -6,10 +6,10 @@
 eg that are not totally bested by other timings of introduction for the same site, 
 and that are efficient enough. (colonises more than one site on average).}
 \usage{
-rcpp_viable_sites(colonisationMatrices)
+rcpp_viable_sites(transitionmatrices)
 }
 \arguments{
-\item{Eigen::SparseMatrix<double>>}{colonisationMatrices list of transition matrices from any timestep to the last timestep.}
+\item{Eigen::SparseMatrix<double>>}{transitionmatrices list of transition matrices from any timestep to the last timestep.}
 }
 \value{
 boolean sparse matrix, each row correspond to a time, each column to a site. (1=viable; 0=not viable)

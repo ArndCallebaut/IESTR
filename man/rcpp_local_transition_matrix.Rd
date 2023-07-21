@@ -6,14 +6,14 @@
 \usage{
 rcpp_local_transition_matrix(
   consecutiveSuitabilityMatrix,
-  localTransitionMatrix,
+  spreadmatrix,
   globalSuitableCoordinates
 )
 }
 \arguments{
 \item{std::list<Eigen::SparseMatrix<double>>}{consecutiveSuitabilityMatrix list of suitability matrix}
 
-\item{Eigen::SparseMatrix<double>}{localTransitionMatrix matrix used to model spread behavior of the species without suitability}
+\item{Eigen::SparseMatrix<double>}{spreadmatrix matrix used to model spread behavior of the species without suitability}
 
 \item{Rcpp::NumericMatrix}{globalSuitableCoordinates support matrix coordinates of each sites}
 }

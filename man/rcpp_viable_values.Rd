@@ -8,7 +8,7 @@ rcpp_viable_values(
   viablesTriplets,
   viableSites,
   globalSuitableSites,
-  colonisationMatrices
+  transitionmatrices
 )
 }
 \arguments{
@@ -16,7 +16,7 @@ rcpp_viable_values(
 
 \item{Eigen::SparseMatrix<double>}{globalSuitableSites support matrix containing index of each sites}
 
-\item{std::vector<Eigen::SparseMatrix<double>>}{colonisationMatrices list of transition matrices from any timestep to the last timestep.}
+\item{std::vector<Eigen::SparseMatrix<double>>}{transitionmatrices list of transition matrices from any timestep to the last timestep.}
 }
 \value{
 for each viable site : index, position on map, time, and cost.

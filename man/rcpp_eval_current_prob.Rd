@@ -7,14 +7,14 @@
 rcpp_eval_current_prob(
   threshold,
   currentPresenceMatrix,
-  colonisationMatrices,
+  transitionmatrices,
   globalSuitableSites
 )
 }
 \arguments{
 \item{threshold}{number of site with presence we want to obtain.}
 
-\item{std::vector<Eigen::SparseMatrix<double>>}{colonisationMatrices list of transition matrices from any timestep to the last timestep.}
+\item{std::vector<Eigen::SparseMatrix<double>>}{transitionmatrices list of transition matrices from any timestep to the last timestep.}
 
 \item{Eigen::SparseMatrix<double>}{globalSuitableSites support matrix containing index of each sites}
 }

@@ -6,14 +6,14 @@
 \usage{
 rcpp_viable_triplets(
   viableSites,
-  colonisationMatrices,
+  transitionmatrices,
   globalSuitableCoordinates,
   globalSuitableSites,
   costMatrix
 )
 }
 \arguments{
-\item{std::list<Eigen::SparseMatrix<double>>}{colonisationMatrices list of transition matrices from any timestep to the last timestep.}
+\item{std::list<Eigen::SparseMatrix<double>>}{transitionmatrices list of transition matrices from any timestep to the last timestep.}
 
 \item{Rcpp::NumericMatrix}{globalSuitableCoordinates support matrix coordinates of each sites}
 

@@ -5,3 +5,6 @@ importFrom(Rcpp, evalCpp)
 ## (but allow for private functions whose name starts with a dot).name <- function(...)
 #exportPattern(".")
 exportPattern("^[[:alpha:]]+")
+
+##Rcpp::compileAttributes()           # this updates the Rcpp layer from C++ to R
+##roxygen2::roxygenize(roclets="rd") 

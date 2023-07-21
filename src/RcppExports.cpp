@@ -57,17 +57,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpp_global_suitable_sites
-Eigen::SparseMatrix<double> rcpp_global_suitable_sites(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix);
-RcppExport SEXP _IESTR_rcpp_global_suitable_sites(SEXP consecutiveSuitabilityMatrixSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::list<Eigen::SparseMatrix<double>> >::type consecutiveSuitabilityMatrix(consecutiveSuitabilityMatrixSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_global_suitable_sites(consecutiveSuitabilityMatrix));
-    return rcpp_result_gen;
-END_RCPP
-}
 // rcpp_global_suitable_coordinates
 Rcpp::NumericMatrix rcpp_global_suitable_coordinates(Eigen::SparseMatrix<double> globalSuitableSites);
 RcppExport SEXP _IESTR_rcpp_global_suitable_coordinates(SEXP globalSuitableSitesSEXP) {
@@ -93,80 +82,80 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_local_transition_matrix
-std::list<Eigen::SparseMatrix<double>> rcpp_local_transition_matrix(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix, Eigen::SparseMatrix<double> localTransitionMatrix, Rcpp::NumericMatrix globalSuitableCoordinates);
-RcppExport SEXP _IESTR_rcpp_local_transition_matrix(SEXP consecutiveSuitabilityMatrixSEXP, SEXP localTransitionMatrixSEXP, SEXP globalSuitableCoordinatesSEXP) {
+std::list<Eigen::SparseMatrix<double>> rcpp_local_transition_matrix(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix, Eigen::SparseMatrix<double> spreadmatrix, Rcpp::NumericMatrix globalSuitableCoordinates);
+RcppExport SEXP _IESTR_rcpp_local_transition_matrix(SEXP consecutiveSuitabilityMatrixSEXP, SEXP spreadmatrixSEXP, SEXP globalSuitableCoordinatesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::list<Eigen::SparseMatrix<double>> >::type consecutiveSuitabilityMatrix(consecutiveSuitabilityMatrixSEXP);
-    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type localTransitionMatrix(localTransitionMatrixSEXP);
+    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type spreadmatrix(spreadmatrixSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type globalSuitableCoordinates(globalSuitableCoordinatesSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_local_transition_matrix(consecutiveSuitabilityMatrix, localTransitionMatrix, globalSuitableCoordinates));
+    rcpp_result_gen = Rcpp::wrap(rcpp_local_transition_matrix(consecutiveSuitabilityMatrix, spreadmatrix, globalSuitableCoordinates));
     return rcpp_result_gen;
 END_RCPP
 }
 // rcpp_transition_matrix
-std::vector<Eigen::SparseMatrix<double>> rcpp_transition_matrix(std::list<Eigen::SparseMatrix<double>> transitionMatrices);
-RcppExport SEXP _IESTR_rcpp_transition_matrix(SEXP transitionMatricesSEXP) {
+std::vector<Eigen::SparseMatrix<double>> rcpp_transition_matrix(std::list<Eigen::SparseMatrix<double>> localtransitionmatrices);
+RcppExport SEXP _IESTR_rcpp_transition_matrix(SEXP localtransitionmatricesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::list<Eigen::SparseMatrix<double>> >::type transitionMatrices(transitionMatricesSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_transition_matrix(transitionMatrices));
+    Rcpp::traits::input_parameter< std::list<Eigen::SparseMatrix<double>> >::type localtransitionmatrices(localtransitionmatricesSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_transition_matrix(localtransitionmatrices));
     return rcpp_result_gen;
 END_RCPP
 }
 // rcpp_viable_sites
-Eigen::SparseMatrix<double> rcpp_viable_sites(std::vector<Eigen::SparseMatrix<double>> colonisationMatrices);
-RcppExport SEXP _IESTR_rcpp_viable_sites(SEXP colonisationMatricesSEXP) {
+Eigen::SparseMatrix<double> rcpp_viable_sites(std::vector<Eigen::SparseMatrix<double>> transitionmatrices);
+RcppExport SEXP _IESTR_rcpp_viable_sites(SEXP transitionmatricesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<Eigen::SparseMatrix<double>> >::type colonisationMatrices(colonisationMatricesSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_viable_sites(colonisationMatrices));
+    Rcpp::traits::input_parameter< std::vector<Eigen::SparseMatrix<double>> >::type transitionmatrices(transitionmatricesSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_viable_sites(transitionmatrices));
     return rcpp_result_gen;
 END_RCPP
 }
 // rcpp_viable_triplets
-Rcpp::NumericMatrix rcpp_viable_triplets(Eigen::SparseMatrix<double> viableSites, std::list<Eigen::SparseMatrix<double>> colonisationMatrices, Rcpp::NumericMatrix globalSuitableCoordinates, Eigen::SparseMatrix<double> globalSuitableSites, Eigen::SparseMatrix<double> costMatrix);
-RcppExport SEXP _IESTR_rcpp_viable_triplets(SEXP viableSitesSEXP, SEXP colonisationMatricesSEXP, SEXP globalSuitableCoordinatesSEXP, SEXP globalSuitableSitesSEXP, SEXP costMatrixSEXP) {
+Rcpp::NumericMatrix rcpp_viable_triplets(Eigen::SparseMatrix<double> viableSites, std::list<Eigen::SparseMatrix<double>> transitionmatrices, Rcpp::NumericMatrix globalSuitableCoordinates, Eigen::SparseMatrix<double> globalSuitableSites, Eigen::SparseMatrix<double> costMatrix);
+RcppExport SEXP _IESTR_rcpp_viable_triplets(SEXP viableSitesSEXP, SEXP transitionmatricesSEXP, SEXP globalSuitableCoordinatesSEXP, SEXP globalSuitableSitesSEXP, SEXP costMatrixSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type viableSites(viableSitesSEXP);
-    Rcpp::traits::input_parameter< std::list<Eigen::SparseMatrix<double>> >::type colonisationMatrices(colonisationMatricesSEXP);
+    Rcpp::traits::input_parameter< std::list<Eigen::SparseMatrix<double>> >::type transitionmatrices(transitionmatricesSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type globalSuitableCoordinates(globalSuitableCoordinatesSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type globalSuitableSites(globalSuitableSitesSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type costMatrix(costMatrixSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_viable_triplets(viableSites, colonisationMatrices, globalSuitableCoordinates, globalSuitableSites, costMatrix));
+    rcpp_result_gen = Rcpp::wrap(rcpp_viable_triplets(viableSites, transitionmatrices, globalSuitableCoordinates, globalSuitableSites, costMatrix));
     return rcpp_result_gen;
 END_RCPP
 }
 // rcpp_viable_values
-Eigen::SparseMatrix<double> rcpp_viable_values(Rcpp::NumericMatrix viablesTriplets, Eigen::SparseMatrix<double> viableSites, Eigen::SparseMatrix<double> globalSuitableSites, std::vector<Eigen::SparseMatrix<double>> colonisationMatrices);
-RcppExport SEXP _IESTR_rcpp_viable_values(SEXP viablesTripletsSEXP, SEXP viableSitesSEXP, SEXP globalSuitableSitesSEXP, SEXP colonisationMatricesSEXP) {
+Eigen::SparseMatrix<double> rcpp_viable_values(Rcpp::NumericMatrix viablesTriplets, Eigen::SparseMatrix<double> viableSites, Eigen::SparseMatrix<double> globalSuitableSites, std::vector<Eigen::SparseMatrix<double>> transitionmatrices);
+RcppExport SEXP _IESTR_rcpp_viable_values(SEXP viablesTripletsSEXP, SEXP viableSitesSEXP, SEXP globalSuitableSitesSEXP, SEXP transitionmatricesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type viablesTriplets(viablesTripletsSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type viableSites(viableSitesSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type globalSuitableSites(globalSuitableSitesSEXP);
-    Rcpp::traits::input_parameter< std::vector<Eigen::SparseMatrix<double>> >::type colonisationMatrices(colonisationMatricesSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_viable_values(viablesTriplets, viableSites, globalSuitableSites, colonisationMatrices));
+    Rcpp::traits::input_parameter< std::vector<Eigen::SparseMatrix<double>> >::type transitionmatrices(transitionmatricesSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_viable_values(viablesTriplets, viableSites, globalSuitableSites, transitionmatrices));
     return rcpp_result_gen;
 END_RCPP
 }
 // rcpp_eval_current_prob
-NumericVector rcpp_eval_current_prob(int threshold, Eigen::SparseMatrix<double> currentPresenceMatrix, std::vector<Eigen::SparseMatrix<double>> colonisationMatrices, Eigen::SparseMatrix<double> globalSuitableSites);
-RcppExport SEXP _IESTR_rcpp_eval_current_prob(SEXP thresholdSEXP, SEXP currentPresenceMatrixSEXP, SEXP colonisationMatricesSEXP, SEXP globalSuitableSitesSEXP) {
+NumericVector rcpp_eval_current_prob(int threshold, Eigen::SparseMatrix<double> currentPresenceMatrix, std::vector<Eigen::SparseMatrix<double>> transitionmatrices, Eigen::SparseMatrix<double> globalSuitableSites);
+RcppExport SEXP _IESTR_rcpp_eval_current_prob(SEXP thresholdSEXP, SEXP currentPresenceMatrixSEXP, SEXP transitionmatricesSEXP, SEXP globalSuitableSitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type threshold(thresholdSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type currentPresenceMatrix(currentPresenceMatrixSEXP);
-    Rcpp::traits::input_parameter< std::vector<Eigen::SparseMatrix<double>> >::type colonisationMatrices(colonisationMatricesSEXP);
+    Rcpp::traits::input_parameter< std::vector<Eigen::SparseMatrix<double>> >::type transitionmatrices(transitionmatricesSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type globalSuitableSites(globalSuitableSitesSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_eval_current_prob(threshold, currentPresenceMatrix, colonisationMatrices, globalSuitableSites));
+    rcpp_result_gen = Rcpp::wrap(rcpp_eval_current_prob(threshold, currentPresenceMatrix, transitionmatrices, globalSuitableSites));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -196,8 +185,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_algorithm_opt
-Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons, Rcpp::NumericMatrix viablesTriplets, Rcpp::NumericMatrix population0, Eigen::SparseMatrix<double> costMatrix, Eigen::SparseMatrix<double> currentPresenceMatrix, std::vector<Eigen::SparseMatrix<double>> colonisationMatrices, Eigen::SparseMatrix<double> globalSuitableSites, Eigen::SparseMatrix<double> viablesValues, int threshold, double confidence, int npop, int nsur, int ngen, int nbtoplant);
-RcppExport SEXP _IESTR_rcpp_algorithm_opt(SEXP pheromonsSEXP, SEXP viablesTripletsSEXP, SEXP population0SEXP, SEXP costMatrixSEXP, SEXP currentPresenceMatrixSEXP, SEXP colonisationMatricesSEXP, SEXP globalSuitableSitesSEXP, SEXP viablesValuesSEXP, SEXP thresholdSEXP, SEXP confidenceSEXP, SEXP npopSEXP, SEXP nsurSEXP, SEXP ngenSEXP, SEXP nbtoplantSEXP) {
+Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons, Rcpp::NumericMatrix viablesTriplets, Rcpp::NumericMatrix population0, Eigen::SparseMatrix<double> costMatrix, Eigen::SparseMatrix<double> currentPresenceMatrix, std::vector<Eigen::SparseMatrix<double>> transitionmatrices, Eigen::SparseMatrix<double> globalSuitableSites, Eigen::SparseMatrix<double> viablesValues, int threshold, double confidence, int npop, int nsur, int ngen, int nbtoplant);
+RcppExport SEXP _IESTR_rcpp_algorithm_opt(SEXP pheromonsSEXP, SEXP viablesTripletsSEXP, SEXP population0SEXP, SEXP costMatrixSEXP, SEXP currentPresenceMatrixSEXP, SEXP transitionmatricesSEXP, SEXP globalSuitableSitesSEXP, SEXP viablesValuesSEXP, SEXP thresholdSEXP, SEXP confidenceSEXP, SEXP npopSEXP, SEXP nsurSEXP, SEXP ngenSEXP, SEXP nbtoplantSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -206,7 +195,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type population0(population0SEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type costMatrix(costMatrixSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type currentPresenceMatrix(currentPresenceMatrixSEXP);
-    Rcpp::traits::input_parameter< std::vector<Eigen::SparseMatrix<double>> >::type colonisationMatrices(colonisationMatricesSEXP);
+    Rcpp::traits::input_parameter< std::vector<Eigen::SparseMatrix<double>> >::type transitionmatrices(transitionmatricesSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type globalSuitableSites(globalSuitableSitesSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type viablesValues(viablesValuesSEXP);
     Rcpp::traits::input_parameter< int >::type threshold(thresholdSEXP);
@@ -215,7 +204,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type nsur(nsurSEXP);
     Rcpp::traits::input_parameter< int >::type ngen(ngenSEXP);
     Rcpp::traits::input_parameter< int >::type nbtoplant(nbtoplantSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_algorithm_opt(pheromons, viablesTriplets, population0, costMatrix, currentPresenceMatrix, colonisationMatrices, globalSuitableSites, viablesValues, threshold, confidence, npop, nsur, ngen, nbtoplant));
+    rcpp_result_gen = Rcpp::wrap(rcpp_algorithm_opt(pheromons, viablesTriplets, population0, costMatrix, currentPresenceMatrix, transitionmatrices, globalSuitableSites, viablesValues, threshold, confidence, npop, nsur, ngen, nbtoplant));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -237,7 +226,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IESTR_index_random_choice_non_uniform", (DL_FUNC) &_IESTR_index_random_choice_non_uniform, 1},
     {"_IESTR_generate_permutation4", (DL_FUNC) &_IESTR_generate_permutation4, 2},
     {"_IESTR_proba_matrix_mult3", (DL_FUNC) &_IESTR_proba_matrix_mult3, 2},
-    {"_IESTR_rcpp_global_suitable_sites", (DL_FUNC) &_IESTR_rcpp_global_suitable_sites, 1},
     {"_IESTR_rcpp_global_suitable_coordinates", (DL_FUNC) &_IESTR_rcpp_global_suitable_coordinates, 1},
     {"_IESTR_rcpp_spread_matrix", (DL_FUNC) &_IESTR_rcpp_spread_matrix, 3},
     {"_IESTR_rcpp_local_transition_matrix", (DL_FUNC) &_IESTR_rcpp_local_transition_matrix, 3},

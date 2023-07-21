@@ -4,7 +4,7 @@
 \alias{rcpp_transition_matrix}
 \title{Calculate the transition matrices from the local transition matrices}
 \usage{
-rcpp_transition_matrix(transitionMatrices)
+rcpp_transition_matrix(localtransitionmatrices)
 }
 \arguments{
 \item{std::list<Eigen::SparseMatrix<double>>}{list of matrix used to model spread behavior of the species with suitability, between two adjacent timestep}
