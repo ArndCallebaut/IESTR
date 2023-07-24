@@ -152,5 +152,5 @@ choix3 = rcpp_result_to_choice(resultat3,vt3)
 
 #Show how would evolve the system with the introduction
 do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,choix3,
-             global_suitable_coordinates,colonisation_matrices,presence_map)
+             global_suitable_coordinates,tm,presence_map)
 
