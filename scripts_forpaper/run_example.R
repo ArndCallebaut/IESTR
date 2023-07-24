@@ -19,11 +19,11 @@ library(viridis)
 library(hrbrthemes)
 library(methods)
 
-### call for support scripts.
+### call for support scripts related to run examples and plot results 
 source("./scripts_forpaper/building_example_functions.R")
 source("./scripts_forpaper/plot_exemple_functions.R")
 
-### Global Details
+### Global color defaults
 col = terrain.colors(20)
 hea = (viridis(10))
 
@@ -41,11 +41,11 @@ nsur = 100 #size of the surviving population
 ngen = 20 #number of generations
 
 # Algorithm - optimum condition values
-threshold = 50
-confidence = 0.8
+threshold = 50 #ARNAUD explain briefly
+confidence = 0.8 #ARNAUD explain briefly
 
 #################################################
-## Maps construction
+## Building suitability maps 
 #################################################
 
 # Map - size
@@ -66,10 +66,13 @@ Trange = Tmax_alt_0 - (Tmin_alt_0 + Tadd_alt_1)
 ltmarge = c(Tmin_alt_0 + Tadd_alt_1, Tmax_alt_0+Tadd_cyc)
 
 # Species - caracteristics
+#temperature ranges
 Trange_spe = c(8.8,9.1,11.6,11.9)
+#dispersal and estabilishment probability kerne;
 migr_spe = array(0.01, c(3, 3))
 migr_spe[2,2] = 1
 
+#ARNAUD what is area 2? 
 # Species - presence - area 2
 nb_cell_occuped1 = 10
 xmin = 0.72
@@ -96,45 +99,55 @@ do_plot_fig2(nr, nc, height_map, climate_maps, N_cycles)
 #################################################
 
 # All of this part describes how IESTR is used, step by step by step.
-# There are to main result : 
-# tm = the transition matrix, that allow to know the impact on the final state of the system of any introduction
+# There are two main results : 
+# tm = the transition matrix, that allows to know the impact on the final state of the system of any introduction
 # choix1 = the calculated optimal introductions in space and time.
-# These can be directly calculated from the "IESTR_process" function for a quickier use of IESTR functionnalities.
+# These can be directly calculated from the "IESTR_process" function, a wrapper for the different processes shown here.
 
+#ARNAUD, what is Utility indices? What about this? Also why is this for? 
+#STEP 1 Internal indexing of sites used by the package; ====
 #Utility indices of suitable sites used in the package; 
 gss = rcpp_global_suitable_sites(suitability_maps)
 gsc = rcpp_global_suitable_coordinates(gss)
+# inital presence of the species
+do_plot_fig3(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map) 
 
-do_plot_fig3(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map) # inital presence of the species
-
-#Creation of the transition matrices
-#If you have more informations about spread dynamics than just a migration Kernel, this can be included here. (Contact the author for more infos)
+#STEP 2 Creation of the transition matrices ====
+#If you have more information about spread dynamics than just a migration Kernel, 
+#.  this can be included here. (Contact the author for more info)
+#get the spread matrix
 sm = rcpp_spread_matrix(gss,gsc,migr_spe)
+#obtain local transition matrix
 ltm = rcpp_local_transition_matrix(suitability_maps,sm,gsc)
+#obtain transition matrix
 tm = rcpp_transition_matrix(ltm)
 
-#Utility reindicing of values of the transition matrices
+#STEP 3 Reindexing of values of the transition matrices ====
 vs = rcpp_viable_sites(tm)
 vt = rcpp_viable_triplets(vs,tm,gsc,gss,cost1)
 vv = rcpp_viable_values(vt,vs,gss,tm)
 
-#Pre-processing for the optimisation part
-ph = rcpp_pheromons(vt) #Weight for each viable pair of time&site of introduction (more weight = more chance to be choosen)
-ecp = rcpp_eval_current_prob(threshold,presence_map,tm,gss) #probability of number of site with presence at the end of the period.
-ntp = threshold - which(cumsum(ecp)>0.95)[1] #evaluated maximum number of sites of introduction necessary to reach the threshold.
-po = rcpp_generate_population(ph,gss,npop,ntp) #generate the initial population for the genetic algorithm.
+#STEP 4 Pre-processing for the optimisation part ====
+#Weight for each viable pair of time&site of introduction (more weight = more chance to be choosen)
+ph = rcpp_pheromons(vt) 
+#probability of number of site with presence at the end of the period.
+ecp = rcpp_eval_current_prob(threshold,presence_map,tm,gss) 
+#evaluated maximum number of sites of introduction necessary to reach the threshold.
+ntp = threshold - which(cumsum(ecp)>0.95)[1] 
+#generate the initial population for the genetic algorithm.
+po = rcpp_generate_population(ph,gss,npop,ntp) 
 
-#Genetic algorithm use to optimise introduction choices
+#STEP 5 Genetic algorithm use to optimise introduction choices ====
 resultat1 = rcpp_algorithm_opt(ph,vt,po,cost1,presence_map,tm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
 
-#Results filtered
+#STEP 6 Results filtered ====
 choix1 = rcpp_result_to_choice(resultat1,vt)
 
-#Show how would evolve the system without introduction
+#STEP 7 Show how would evolve the system without introduction ====
 do_plot_fig4(nrow,ncol,N_cycles,height_map,suitability_maps,
              gsc,tm,presence_map)
 
-#Show how would evolve the system with the introduction
+#STEP 8 Show how would evolve the system with the introduction ====
 do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,choix1,
              gsc,tm,presence_map)
 
