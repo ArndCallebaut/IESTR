@@ -57,6 +57,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_global_suitable_sites
+Eigen::SparseMatrix<double> rcpp_global_suitable_sites(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix);
+RcppExport SEXP _IESTR_rcpp_global_suitable_sites(SEXP consecutiveSuitabilityMatrixSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::list<Eigen::SparseMatrix<double>> >::type consecutiveSuitabilityMatrix(consecutiveSuitabilityMatrixSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_global_suitable_sites(consecutiveSuitabilityMatrix));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_global_suitable_coordinates
 Rcpp::NumericMatrix rcpp_global_suitable_coordinates(Eigen::SparseMatrix<double> globalSuitableSites);
 RcppExport SEXP _IESTR_rcpp_global_suitable_coordinates(SEXP globalSuitableSitesSEXP) {
@@ -226,6 +237,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IESTR_index_random_choice_non_uniform", (DL_FUNC) &_IESTR_index_random_choice_non_uniform, 1},
     {"_IESTR_generate_permutation4", (DL_FUNC) &_IESTR_generate_permutation4, 2},
     {"_IESTR_proba_matrix_mult3", (DL_FUNC) &_IESTR_proba_matrix_mult3, 2},
+    {"_IESTR_rcpp_global_suitable_sites", (DL_FUNC) &_IESTR_rcpp_global_suitable_sites, 1},
     {"_IESTR_rcpp_global_suitable_coordinates", (DL_FUNC) &_IESTR_rcpp_global_suitable_coordinates, 1},
     {"_IESTR_rcpp_spread_matrix", (DL_FUNC) &_IESTR_rcpp_spread_matrix, 3},
     {"_IESTR_rcpp_local_transition_matrix", (DL_FUNC) &_IESTR_rcpp_local_transition_matrix, 3},

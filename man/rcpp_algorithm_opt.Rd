@@ -24,7 +24,7 @@ rcpp_algorithm_opt(
 )
 }
 \arguments{
-\item{Rcpp::NumericVector\pheromons}{weights of relative importance of each site&time pair.}
+\item{Rcpp::NumericVector}{pheromons weights of relative importance of each site&time pair.}
 
 \item{Rcpp::NumericMatrix}{population0 An initial population of set of site&time choices of introduction}
 

@@ -125,18 +125,18 @@ ntp = threshold - which(cumsum(ecp)>0.95)[1] #evaluated maximum number of sites 
 po = rcpp_generate_population(ph,gss,npop,ntp) #generate the initial population for the genetic algorithm.
 
 #Genetic algorithm use to optimise introduction choices
-resultat1 = rcpp_algorithm_opt(ph,vt,po,cost,presence_map,tm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
+resultat1 = rcpp_algorithm_opt(ph,vt,po,cost1,presence_map,tm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
 
 #Results filtered
 choix1 = rcpp_result_to_choice(resultat1,vt)
 
 #Show how would evolve the system without introduction
 do_plot_fig4(nrow,ncol,N_cycles,height_map,suitability_maps,
-             global_suitable_coordinates,colonisation_matrices,presence_map)
+             gsc,tm,presence_map)
 
 #Show how would evolve the system with the introduction
 do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,choix1,
-             global_suitable_coordinates,colonisation_matrices,presence_map)
+             gsc,tm,presence_map)
 
 
 #################################################

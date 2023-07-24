@@ -151,7 +151,7 @@ do_plot_fig4 = function(nrow,
                         height_map,
                         suitability_maps,
                         global_suitable_coordinates,
-                        colonisation_matrices,
+                        tm,
                         presence_map){
   # 0-preprocessing
   
@@ -183,12 +183,12 @@ do_plot_fig4 = function(nrow,
   colnames(XY_to_index) = c("x","y","index")
   pres_index = inner_join(XY_pres,XY_to_index,by = c("x", "y"))
   
-  vectors_pres_effects_on_tN = summary((cm[[1]][,pres_index[,3]]))
+  vectors_pres_effects_on_tN = summary((tm[[1]][,pres_index[,3]]))
   colnames(vectors_pres_effects_on_tN) = c("index","i","effect")
   tmp = vectors_pres_effects_on_tN
   tmp$index = as.factor(tmp$index)
   tmp$effect = 1 - tmp$effect
-  vectors_effects_on_tN = summary((cm[[1]][,pres_index[,3]]))
+  vectors_effects_on_tN = summary((tm[[1]][,pres_index[,3]]))
   
   tmp3 = aggregate(effect~(index),tmp,FUN=function(x) prod(x))
   tmp3$index = as.numeric(as.character(tmp3$index))
@@ -237,7 +237,7 @@ do_plot_fig5 = function(nrow,
                         suitability_maps,
                         choices,
                         global_suitable_coordinates,
-                        colonisation_matrices,
+                        tm,
                         presence_map,
                         cost){
   # 0-preprocessing
@@ -270,15 +270,15 @@ do_plot_fig5 = function(nrow,
   colnames(XY_to_index) = c("x","y","index")
   pres_index = inner_join(XY_pres,XY_to_index,by = c("x", "y"))
   
-  vectors_pres_effects_on_tN = summary((cm[[1]][,pres_index[,3]]))
+  vectors_pres_effects_on_tN = summary((tm[[1]][,pres_index[,3]]))
   colnames(vectors_pres_effects_on_tN) = c("index","i","effect")
   tmp = vectors_pres_effects_on_tN
   tmp$index = as.factor(tmp$index)
   tmp$effect = 1 - tmp$effect
-  vectors_effects_on_tN = summary((cm[[1]][,pres_index[,3]]))
+  vectors_effects_on_tN = summary((tm[[1]][,pres_index[,3]]))
   choices = choices[choices[,1]!=0,] 
   
-  vectors_intro_effects_on_tN = summary(Matrix(apply(choices, 1, function (x) cm[[x[3]]][,x[5]]),sparse=T))
+  vectors_intro_effects_on_tN = summary(Matrix(apply(choices, 1, function (x) tm[[x[3]]][,x[5]]),sparse=T))
   colnames(vectors_intro_effects_on_tN) = c("index","i","effect")
   tmp2 = vectors_intro_effects_on_tN
   tmp2$effect = 1 - tmp2$effect
@@ -542,12 +542,12 @@ do_plot_fig8 = function(nrow,
   rvb_tensor[,,2][cbind(XY_pres[,1],XY_pres[,2])]= 0.5
   rvb_tensor[,,3][cbind(XY_pres[,1],XY_pres[,2])] = 0.3
   
-  vectors_pres_effects_on_tN = summary((cm[[1]][,pres_index[,3]]))
+  vectors_pres_effects_on_tN = summary((tm[[1]][,pres_index[,3]]))
   colnames(vectors_pres_effects_on_tN) = c("index","i","effect")
   tmp = vectors_pres_effects_on_tN
   tmp$index = as.factor(tmp$index)
   tmp$effect = 1 - tmp$effect
-  vectors_effects_on_tN = summary((cm[[1]][,pres_index[,3]]))
+  vectors_effects_on_tN = summary((tm[[1]][,pres_index[,3]]))
   
   tmp3 = aggregate(effect~(index),tmp,FUN=function(x) prod(x))
   tmp3$index = as.numeric(as.character(tmp3$index))
@@ -633,7 +633,7 @@ do_plot_fig001 = function(nrow,
                           height_map,
                           suitability_maps,
                           gsc,
-                          colonisation_matrices,
+                          tm,
                           presence_map,
                           cost){
   # 0-preprocessing
@@ -643,22 +643,22 @@ do_plot_fig001 = function(nrow,
   
   indices_pres2 = matrix(0,N_cycles,length(gsc[,1]))
   for (i in 1:N_cycles){
-    cm_loc = cm[[i]]
+    tm_loc = tm[[i]]
     for (j in 1:length(gsc[,1])){
-      indices_pres2[i,j] = sum(cm_loc[,j])
+      indices_pres2[i,j] = sum(tm_loc[,j])
     }
   }
   opt_each_site = apply(indices_pres2,FUN=max,2)
   library(ramify)
   ind_each_site = (argmax(t(indices_pres2)))
   
-  diag_cms = matrix(0,N_cycles,length(gsc[,1]))
+  diag_tms = matrix(0,N_cycles,length(gsc[,1]))
   for (i in 1:N_cycles){
-    cm_loc = cm[[i]]
-    diag_cms[i,] = apply(cm_loc,2,sum)
+    tm_loc = tm[[i]]
+    diag_tms[i,] = apply(tm_loc,2,sum)
   }
   
-  maxi_diags = apply(diag_cms,FUN=max,2)
+  maxi_diags = apply(diag_tms,FUN=max,2)
   
   plot(maxi_diags,opt_each_site)
   

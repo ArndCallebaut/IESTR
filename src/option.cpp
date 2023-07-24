@@ -28,6 +28,7 @@ using namespace Eigen;
 //' @param consecutiveSuitabilityMatrix list of matrix of suitability for each timestep.
 //' @return suitable sites as a sparse matrix
 //' @export
+// [[Rcpp::export]]
 Eigen::SparseMatrix<double> rcpp_global_suitable_sites(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix){
   int nbr = consecutiveSuitabilityMatrix.back().rows();
   int nbc = consecutiveSuitabilityMatrix.back().cols();
@@ -59,6 +60,7 @@ Eigen::SparseMatrix<double> rcpp_global_suitable_sites(std::list<Eigen::SparseMa
 //'
 //' @param globalSuitableSites support matrix containing index of each sites
 //' @return coordinates of the suitable sites as a matrix
+//' @export
 // [[Rcpp::export]]
 Rcpp::NumericMatrix rcpp_global_suitable_coordinates(Eigen::SparseMatrix<double> globalSuitableSites){
   int nbsites = globalSuitableSites.nonZeros();
@@ -79,6 +81,7 @@ Rcpp::NumericMatrix rcpp_global_suitable_coordinates(Eigen::SparseMatrix<double>
 //' @param Rcpp::NumericMatrix globalSuitableCoordinates support matrix coordinates of each sites
 //' @param Rcpp::NumericMatrix migrationKernel matrix modelling spread properties of the species.
 //' @return Spread matrix used to model spread behavior of the species without suitability
+//' @export
 // [[Rcpp::export]]
 Eigen::SparseMatrix<double> rcpp_spread_matrix(Eigen::SparseMatrix<double> globalSuitableSites,
                                                Rcpp::NumericMatrix globalSuitableCoordinates,
@@ -112,7 +115,9 @@ Eigen::SparseMatrix<double> rcpp_spread_matrix(Eigen::SparseMatrix<double> globa
 //' @param Eigen::SparseMatrix<double> spreadmatrix matrix used to model spread behavior of the species without suitability
 //' @param Rcpp::NumericMatrix globalSuitableCoordinates support matrix coordinates of each sites
 //' @return list of matrix used to model spread behavior of the species with suitability, between two adjacent timestep
+//' @export
 // [[Rcpp::export]]
+
 std::list<Eigen::SparseMatrix<double>> rcpp_local_transition_matrix(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix,
                                                                 Eigen::SparseMatrix<double> spreadmatrix,
                                                                 Rcpp::NumericMatrix globalSuitableCoordinates){
@@ -140,6 +145,7 @@ std::list<Eigen::SparseMatrix<double>> rcpp_local_transition_matrix(std::list<Ei
 //'
 //' @param std::list<Eigen::SparseMatrix<double>> list of matrix used to model spread behavior of the species with suitability, between two adjacent timestep
 //' @return list of transition matrices from any timestep to the last timestep.
+//' @export
 // [[Rcpp::export]]
 std::vector<Eigen::SparseMatrix<double>> rcpp_transition_matrix(std::list<Eigen::SparseMatrix<double>> localtransitionmatrices){
   std::vector<Eigen::SparseMatrix<double>> transitionmatrices;
@@ -164,6 +170,7 @@ std::vector<Eigen::SparseMatrix<double>> rcpp_transition_matrix(std::list<Eigen:
 //'
 //' @param Eigen::SparseMatrix<double>> transitionmatrices list of transition matrices from any timestep to the last timestep.
 //' @return boolean sparse matrix, each row correspond to a time, each column to a site. (1=viable; 0=not viable)
+//' @export
 // [[Rcpp::export]]
 Eigen::SparseMatrix<double> rcpp_viable_sites(std::vector<Eigen::SparseMatrix<double>> transitionmatrices){
   int nbsites = transitionmatrices.front().rows();
@@ -269,6 +276,7 @@ Eigen::SparseMatrix<double> rcpp_viable_sites(std::vector<Eigen::SparseMatrix<do
 //' @param Eigen::SparseMatrix<double> globalSuitableSites support matrix containing index of each sites
 //' @param Eigen::SparseMatrix<double> costMatrix matrix of cost of introduction
 //' @return For each viable site : index, position on map, time, and cost.
+//' @export
 // [[Rcpp::export]]
 Rcpp::NumericMatrix rcpp_viable_triplets(Eigen::SparseMatrix<double> viableSites,
                                          std::list<Eigen::SparseMatrix<double>> transitionmatrices,
@@ -304,6 +312,7 @@ Rcpp::NumericMatrix rcpp_viable_triplets(Eigen::SparseMatrix<double> viableSites
 //' @param Eigen::SparseMatrix<double> globalSuitableSites support matrix containing index of each sites
 //' @param std::vector<Eigen::SparseMatrix<double>> transitionmatrices list of transition matrices from any timestep to the last timestep.
 //' @return for each viable site : index, position on map, time, and cost.
+//' @export
 // [[Rcpp::export]]
 Eigen::SparseMatrix<double> rcpp_viable_values(Rcpp::NumericMatrix viablesTriplets,
                                                 Eigen::SparseMatrix<double> viableSites,
@@ -344,6 +353,7 @@ Eigen::SparseMatrix<double> rcpp_viable_values(Rcpp::NumericMatrix viablesTriple
 //' @param std::vector<Eigen::SparseMatrix<double>> transitionmatrices list of transition matrices from any timestep to the last timestep.
 //' @param Eigen::SparseMatrix<double> globalSuitableSites support matrix containing index of each sites
 //' @return for each viable site : index, position on map, time, and cost.
+//' @export
 // [[Rcpp::export]]
 NumericVector rcpp_eval_current_prob(int threshold,
                                      Eigen::SparseMatrix<double> currentPresenceMatrix,
@@ -383,6 +393,7 @@ NumericVector rcpp_eval_current_prob(int threshold,
 //'
 //' @param Rcpp::NumericMatrix viablesTriplets information about each of the viable site&time pair.
 //' @return a pre-ranking of each site&time pair for the algorithm.
+//' @export
 // [[Rcpp::export]]
 Rcpp::NumericVector rcpp_pheromons(Rcpp::NumericMatrix viablesTriplets){
   int nboc = viablesTriplets.nrow();
@@ -402,6 +413,7 @@ Rcpp::NumericVector rcpp_pheromons(Rcpp::NumericMatrix viablesTriplets){
 //' @param int npop number of individuals in the initial population
 //' @param int nbtoplant pre-evaluate number of introduction necessary (overestimated, usually)
 //' @return an initial population of set of site&time choices of introduction
+//' @export
 // [[Rcpp::export]]
 Rcpp::NumericVector rcpp_generate_population(Rcpp::NumericVector pheromons,Eigen::SparseMatrix<double> globalSuitableSites,int npop, int nbtoplant){
   Rcpp::NumericMatrix population(npop,nbtoplant);
@@ -417,7 +429,7 @@ Rcpp::NumericVector rcpp_generate_population(Rcpp::NumericVector pheromons,Eigen
 //' presence at the end of the study period (threshold) with a minimal probability (confidence) while miimizing the cost
 //' of all the introductions
 //'
-//' @param Rcpp::NumericVector\pheromons weights of relative importance of each site&time pair.
+//' @param Rcpp::NumericVector pheromons weights of relative importance of each site&time pair.
 //' @param Rcpp::NumericMatrix viablesTriplets For each viable site : index, position on map, time, and cost.
 //' @param Rcpp::NumericMatrix population0 An initial population of set of site&time choices of introduction
 //' @param Eigen::SparseMatrix<double> costMatrix matrix of costs of introduction, sparse.
@@ -431,6 +443,7 @@ Rcpp::NumericVector rcpp_generate_population(Rcpp::NumericVector pheromons,Eigen
 //' @param int nsur genetic algorithm : size of the surviving population
 //' @param int ngen genetic algorithm : number of generation
 //' @return an optimised population matrix of set of site&time choices of introduction.
+//' @export
 // [[Rcpp::export]]
 Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
                                        Rcpp::NumericMatrix viablesTriplets,
@@ -632,6 +645,7 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
 //' @param Rcpp::NumericMatrix lastPopulation a matrix of an optimised population obtain with the genetic algorithm
 //' @param Rcpp::NumericMatrix viablesTriplets a matrix of information about each viable site.
 //' @return the choices of introduction in coordinates and timesteps.
+//' @export
 // [[Rcpp::export]]
 Rcpp::NumericMatrix rcpp_result_to_choice(Rcpp::NumericMatrix lastPopulation,
                                           Rcpp::NumericMatrix viablesTriplets){
