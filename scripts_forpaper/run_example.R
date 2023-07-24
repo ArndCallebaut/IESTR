@@ -59,11 +59,11 @@ N_cycles = 30
 Tadd_cyc = 1.5
 
 # Map - space caracteristics
-ltmin_alt_0 = 10
-ltmax_alt_0 = 15
+Tmin_alt_0 = 10
+Tmax_alt_0 = 15
 Tadd_alt_1 = -8
-Trange = ltmax_alt_0 - (ltmin_alt_0 + Tadd_alt_1)
-ltmarge = c(ltmin_alt_0 + Tadd_alt_1, ltmax_alt_0+Tadd_cyc)
+Trange = Tmax_alt_0 - (Tmin_alt_0 + Tadd_alt_1)
+ltmarge = c(Tmin_alt_0 + Tadd_alt_1, Tmax_alt_0+Tadd_cyc)
 
 # Species - caracteristics
 Trange_spe = c(8.8,9.1,11.6,11.9)
