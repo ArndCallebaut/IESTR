@@ -2,13 +2,13 @@
 % Please edit documentation in R/IESTR_user_functions.R
 \name{IESTR_process}
 \alias{IESTR_process}
-\title{Whole IESTR process}
+\title{IESTR_process}
 \usage{
 IESTR_process(
   suitability_maps,
   presence_map,
   migr_spe,
-  cost_map,
+  cost,
   threshold,
   confidence,
   npop,
@@ -23,7 +23,7 @@ IESTR_process(
 
 \item{migr_spe}{matrix of probability of spread in neighbour cells at each time step.}
 
-\item{cost_map}{Cost of introduction of the species in each cell.}
+\item{cost}{Cost of introduction of the species in each cell.}
 
 \item{threshold}{Number of sites with presence is wanted at the end of the study period}
 

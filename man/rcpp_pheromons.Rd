@@ -2,12 +2,12 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_pheromons}
 \alias{rcpp_pheromons}
-\title{Evaluate the potential of each site&time pair, and give them weights for the optimization algorithm.}
+\title{rcpp_pheromons}
 \usage{
 rcpp_pheromons(viablesTriplets)
 }
 \arguments{
-\item{Rcpp::NumericMatrix}{viablesTriplets information about each of the viable site&time pair.}
+\item{viablesTriplets}{(Rcpp::NumericMatrix) information about each of the viable site&time pair.}
 }
 \value{
 a pre-ranking of each site&time pair for the algorithm.

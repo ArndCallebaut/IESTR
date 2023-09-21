@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_eval_current_prob}
 \alias{rcpp_eval_current_prob}
-\title{Evaluate how would evolve the current present species without introduction.}
+\title{rcpp_eval_current_prob}
 \usage{
 rcpp_eval_current_prob(
   threshold,
@@ -12,11 +12,13 @@ rcpp_eval_current_prob(
 )
 }
 \arguments{
-\item{threshold}{number of site with presence we want to obtain.}
+\item{threshold}{(int) number of site with presence we want to obtain.}
 
-\item{std::vector<Eigen::SparseMatrix<double>>}{transitionmatrices list of transition matrices from any timestep to the last timestep.}
+\item{currentPresenceMatrix}{(Eigen::SparseMatrix<double>) matrix of presence of the species.}
 
-\item{Eigen::SparseMatrix<double>}{globalSuitableSites support matrix containing index of each sites}
+\item{transitionmatrices}{(std::vector<Eigen::SparseMatrix<double>>) list of transition matrices from any timestep to the last timestep.}
+
+\item{globalSuitableSites}{(Eigen::SparseMatrix<double>) support matrix containing index of each sites}
 }
 \value{
 for each viable site : index, position on map, time, and cost.

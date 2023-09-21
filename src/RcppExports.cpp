@@ -22,6 +22,27 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// myrv
+double myrv();
+RcppExport SEXP _IESTR_myrv() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(myrv());
+    return rcpp_result_gen;
+END_RCPP
+}
+// randomfunc3
+int randomfunc3(int j);
+RcppExport SEXP _IESTR_randomfunc3(SEXP jSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type j(jSEXP);
+    rcpp_result_gen = Rcpp::wrap(randomfunc3(j));
+    return rcpp_result_gen;
+END_RCPP
+}
 // index_random_choice_non_uniform
 int index_random_choice_non_uniform(Rcpp::NumericVector ununiform_probabilities0);
 RcppExport SEXP _IESTR_index_random_choice_non_uniform(SEXP ununiform_probabilities0SEXP) {
@@ -219,6 +240,30 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_algorithm_opt2
+Rcpp::NumericVector rcpp_algorithm_opt2(Rcpp::NumericVector pheromons, Rcpp::NumericMatrix viablesTriplets, Rcpp::NumericMatrix population0, Eigen::SparseMatrix<double> costMatrix, Eigen::SparseMatrix<double> currentPresenceMatrix, std::vector<Eigen::SparseMatrix<double>> transitionmatrices, Eigen::SparseMatrix<double> globalSuitableSites, Eigen::SparseMatrix<double> viablesValues, int threshold, double confidence, int npop, int nsur, int ngen, int nbtoplant);
+RcppExport SEXP _IESTR_rcpp_algorithm_opt2(SEXP pheromonsSEXP, SEXP viablesTripletsSEXP, SEXP population0SEXP, SEXP costMatrixSEXP, SEXP currentPresenceMatrixSEXP, SEXP transitionmatricesSEXP, SEXP globalSuitableSitesSEXP, SEXP viablesValuesSEXP, SEXP thresholdSEXP, SEXP confidenceSEXP, SEXP npopSEXP, SEXP nsurSEXP, SEXP ngenSEXP, SEXP nbtoplantSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type pheromons(pheromonsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type viablesTriplets(viablesTripletsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type population0(population0SEXP);
+    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type costMatrix(costMatrixSEXP);
+    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type currentPresenceMatrix(currentPresenceMatrixSEXP);
+    Rcpp::traits::input_parameter< std::vector<Eigen::SparseMatrix<double>> >::type transitionmatrices(transitionmatricesSEXP);
+    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type globalSuitableSites(globalSuitableSitesSEXP);
+    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type viablesValues(viablesValuesSEXP);
+    Rcpp::traits::input_parameter< int >::type threshold(thresholdSEXP);
+    Rcpp::traits::input_parameter< double >::type confidence(confidenceSEXP);
+    Rcpp::traits::input_parameter< int >::type npop(npopSEXP);
+    Rcpp::traits::input_parameter< int >::type nsur(nsurSEXP);
+    Rcpp::traits::input_parameter< int >::type ngen(ngenSEXP);
+    Rcpp::traits::input_parameter< int >::type nbtoplant(nbtoplantSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_algorithm_opt2(pheromons, viablesTriplets, population0, costMatrix, currentPresenceMatrix, transitionmatrices, globalSuitableSites, viablesValues, threshold, confidence, npop, nsur, ngen, nbtoplant));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_result_to_choice
 Rcpp::NumericMatrix rcpp_result_to_choice(Rcpp::NumericMatrix lastPopulation, Rcpp::NumericMatrix viablesTriplets);
 RcppExport SEXP _IESTR_rcpp_result_to_choice(SEXP lastPopulationSEXP, SEXP viablesTripletsSEXP) {
@@ -234,6 +279,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_IESTR_rcpp_set_seed", (DL_FUNC) &_IESTR_rcpp_set_seed, 1},
+    {"_IESTR_myrv", (DL_FUNC) &_IESTR_myrv, 0},
+    {"_IESTR_randomfunc3", (DL_FUNC) &_IESTR_randomfunc3, 1},
     {"_IESTR_index_random_choice_non_uniform", (DL_FUNC) &_IESTR_index_random_choice_non_uniform, 1},
     {"_IESTR_generate_permutation4", (DL_FUNC) &_IESTR_generate_permutation4, 2},
     {"_IESTR_proba_matrix_mult3", (DL_FUNC) &_IESTR_proba_matrix_mult3, 2},
@@ -249,6 +296,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IESTR_rcpp_pheromons", (DL_FUNC) &_IESTR_rcpp_pheromons, 1},
     {"_IESTR_rcpp_generate_population", (DL_FUNC) &_IESTR_rcpp_generate_population, 4},
     {"_IESTR_rcpp_algorithm_opt", (DL_FUNC) &_IESTR_rcpp_algorithm_opt, 14},
+    {"_IESTR_rcpp_algorithm_opt2", (DL_FUNC) &_IESTR_rcpp_algorithm_opt2, 14},
     {"_IESTR_rcpp_result_to_choice", (DL_FUNC) &_IESTR_rcpp_result_to_choice, 2},
     {NULL, NULL, 0}
 };

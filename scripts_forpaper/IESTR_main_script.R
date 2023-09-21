@@ -9,9 +9,9 @@ graphics.off()
 
 ### Imports
 library(IESTR)
-library(Matrix)
 library(dplyr)
 library(purrr)
+library(Matrix)
 library(grid)
 library(raster)
 library(lattice)
@@ -75,7 +75,7 @@ height_map = height_map(nrow,ncol)
 climate_maps = climat_maps_maker(height_map,Tadd_cyc,N_cycles)
 suitability_maps = suitability_maps(climate_maps,Trange_spe)
 presence_1st_area = presence_map_2(nrow,ncol,suitability_maps,height_map,N_cycles, 40) # find 40 sites in suitable sites that will not be suitable in the futur
-presence_2nd_area = presence_map(nrow,ncol,suitability_maps,height_map,lim2,nb_cell_occuped1) 
+presence_2nd_area = presence_map(nrow,ncol,suitability_maps,height_map,lim2,10) 
 presence_map = presence_concatenate(presence_1st_area ,presence_2nd_area,nrow)
 cost1 = cost_map(nrow,ncol,height_map,cost_mapping1)
 cost3 = cost_map(nrow,ncol,height_map,cost_mapping3)
@@ -122,15 +122,15 @@ vv = rcpp_viable_values(vt,vs,gss,tm)
 
 #Weight for each viable time-site combinations for species introduction 
 #  (more weight = more chances to be chosen)
-ph = rcpp_pheromons(vt)
+ph = rcpp_pheromons(vt) 
 #occurrence probability without introduction (suitability and migration only) to meet the species range goal (threshold) 
 ecp = rcpp_eval_current_prob(threshold,presence_map,tm,gss) 
 #Maximum number of sites of introduction necessary to reach the threshold.
 ntp = floor((threshold - which(cumsum(ecp)>0.95)[1])/mean(vt[,6],0)) 
 
 #Algorithm - genetic algo characteristics
-npop = 1000 #size of the initial population
-nsur = 200 #size of the surviving population
+npop = 10000 #size of the initial population
+nsur = 1000 #size of the surviving population
 ngen = 30 #number of generations
 
 #generate the initial population for the genetic algorithm.
@@ -184,7 +184,7 @@ vt3 = rcpp_viable_triplets(vs,tm,gsc,gss,cost3)
 vv3 = rcpp_viable_values(vt3,vs,gss,tm)
 ph3 = rcpp_pheromons(vt3)
 po3 = rcpp_generate_population(ph3,gss,npop,ntp)
-resultat3 = rcpp_algorithm_opt(ph3,vt3,po3,cost3,presence_map,tm,
+resultat3 = rcpp_algorithm_opt2(ph3,vt3,po3,cost3,presence_map,tm,
                                gss,vv3,threshold,
                                confidence,
                                npop,nsur,ngen,ntp)
@@ -202,84 +202,84 @@ do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,choix3,
 # ## IESTR - 100 iterations (uniform costs)
 # #################################################
 # 
-# countmap = array(0,c(nrow,ncol))
-# timecount = rep(0,N_cycles)
-# NN = 100 #number of introductions
-# for(i in 1:NN){
-#   set.seed(i*100)
-#   rcpp_set_seed(i*100)
-#   message(i)
-#   resultat1 = rcpp_algorithm_opt(pheromons = ph,
-#                                         viablesTriplets = vt,
-#                                         population0 = po,
-#                                         costMatrix = cost1,
-#                                         currentPresenceMatrix = presence_map,
-#                                         transitionmatrices = tm,
-#                                         globalSuitableSites = gss,
-#                                         viablesValues = vv,
-#                                         threshold = threshold,
-#                                         confidence = confidence,
-#                                         npop = npop,
-#                                         nsur = nsur,
-#                                         ngen = ngen,
-#                                         nbtoplant = ntp)
-# 
-#   choix1 = rcpp_result_to_choice(resultat1,vt)
-#   tmp_c= choix1[choix1[,1]!=0,]
-#   for (j in 1:length(tmp_c[,1])){
-#     countmap[tmp_c[j,1],tmp_c[j,2]] = countmap[tmp_c[j,1],tmp_c[j,2]]+1
-#   }
-#   for (i in 1:length(tmp_c[,1])){
-#     timecount[tmp_c[i,3]] = timecount[tmp_c[i,3]] + 1
-#   }
-# }
-# 
-# do_plot_fig8(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap)
-# barplot(height=timecount[1:30],
-#         names=as.character(1:30),
-#         xlab="timestep",
-#         ylab="occurences in 100 iterations",
-#         cex.lab=1.4)
-# 
-# #################################################
-# ## IESTR - 100 iterations (non-uniform costs)
-# #################################################
-# 
-# countmap2 = array(0,c(nrow,ncol))
-# timecount2 = rep(0,N_cycles)
-# NN = 100 #number of introductions
-# for(i in 1:NN){
-#   set.seed(i*100)
-#   rcpp_set_seed(i*100)
-#   message(i)
-#   resultat1 = rcpp_algorithm_opt(pheromons = ph3,
-#                                  viablesTriplets = vt3,
-#                                  population0 = po3,
-#                                  costMatrix = cost3,
-#                                  currentPresenceMatrix = presence_map,
-#                                  transitionmatrices = tm,
-#                                  globalSuitableSites = gss,
-#                                  viablesValues = vv,
-#                                  threshold = threshold,
-#                                  confidence = confidence,
-#                                  npop = npop,
-#                                  nsur = nsur,
-#                                  ngen = ngen,
-#                                  nbtoplant = ntp)
-# 
-#   choix1 = rcpp_result_to_choice(resultat1,vt)
-#   tmp_c= choix1[choix1[,1]!=0,]
-#   for (j in 1:length(tmp_c[,1])){
-#     countmap2[tmp_c[j,1],tmp_c[j,2]] = countmap2[tmp_c[j,1],tmp_c[j,2]]+1
-#   }
-#   for (i in 1:length(tmp_c[,1])){
-#     timecount2[tmp_c[i,3]] = timecount2[tmp_c[i,3]] + 1
-#   }
-# }
-# 
-# do_plot_fig8(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap2)
-# barplot(height=timecount2[1:30],
-#         names=as.character(1:30),
-#         xlab="timestep",
-#         ylab="occurences in 100 iterations",
-#         cex.lab=1.4)
+countmap = array(0,c(nrow,ncol))
+timecount = rep(0,N_cycles)
+NN = 100 #number of introductions
+for(i in 1:NN){
+  set.seed(i*100)
+  rcpp_set_seed(i*100)
+  message(i)
+  resultat1 = rcpp_algorithm_opt2(pheromons = ph,
+                                        viablesTriplets = vt,
+                                        population0 = po,
+                                        costMatrix = cost1,
+                                        currentPresenceMatrix = presence_map,
+                                        transitionmatrices = tm,
+                                        globalSuitableSites = gss,
+                                        viablesValues = vv,
+                                        threshold = threshold,
+                                        confidence = confidence,
+                                        npop = npop,
+                                        nsur = nsur,
+                                        ngen = ngen,
+                                        nbtoplant = ntp)
+
+  choix1 = rcpp_result_to_choice(resultat1,vt)
+  tmp_c= choix1[choix1[,1]!=0,]
+  for (j in 1:length(tmp_c[,1])){
+    countmap[tmp_c[j,1],tmp_c[j,2]] = countmap[tmp_c[j,1],tmp_c[j,2]]+1
+  }
+  for (i in 1:length(tmp_c[,1])){
+    timecount[tmp_c[i,3]] = timecount[tmp_c[i,3]] + 1
+  }
+}
+
+do_plot_fig8(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap)
+barplot(height=timecount[1:30],
+        names=as.character(1:30),
+        xlab="timestep",
+        ylab="occurences in 100 iterations",
+        cex.lab=1.4)
+
+#################################################
+## IESTR - 100 iterations (non-uniform costs)
+#################################################
+
+countmap2 = array(0,c(nrow,ncol))
+timecount2 = rep(0,N_cycles)
+NN = 100 #number of introductions
+for(i in 1:NN){
+  set.seed(i*100)
+  rcpp_set_seed(i*100)
+  message(i)
+  resultat1 = rcpp_algorithm_opt2(pheromons = ph3,
+                                 viablesTriplets = vt3,
+                                 population0 = po3,
+                                 costMatrix = cost3,
+                                 currentPresenceMatrix = presence_map,
+                                 transitionmatrices = tm,
+                                 globalSuitableSites = gss,
+                                 viablesValues = vv,
+                                 threshold = threshold,
+                                 confidence = confidence,
+                                 npop = npop,
+                                 nsur = nsur,
+                                 ngen = ngen,
+                                 nbtoplant = ntp)
+
+  choix1 = rcpp_result_to_choice(resultat1,vt)
+  tmp_c= choix1[choix1[,1]!=0,]
+  for (j in 1:length(tmp_c[,1])){
+    countmap2[tmp_c[j,1],tmp_c[j,2]] = countmap2[tmp_c[j,1],tmp_c[j,2]]+1
+  }
+  for (i in 1:length(tmp_c[,1])){
+    timecount2[tmp_c[i,3]] = timecount2[tmp_c[i,3]] + 1
+  }
+}
+
+do_plot_fig8(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap2)
+barplot(height=timecount2[1:30],
+        names=as.character(1:30),
+        xlab="timestep",
+        ylab="occurences in 100 iterations",
+        cex.lab=1.4)

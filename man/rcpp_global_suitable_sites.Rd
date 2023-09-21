@@ -2,15 +2,12 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_global_suitable_sites}
 \alias{rcpp_global_suitable_sites}
-\title{Establishes from the consecutiveSuitabilityMatrix what are the
-study sites in the map and attribute them an index used in 
-other functions.
-Warning : the indices start at 1.}
+\title{rcpp_global_suitable_sites.}
 \usage{
 rcpp_global_suitable_sites(consecutiveSuitabilityMatrix)
 }
 \arguments{
-\item{consecutiveSuitabilityMatrix}{list of matrix of suitability for each timestep.}
+\item{consecutiveSuitabilityMatrix}{(std::list<Eigen::SparseMatrix<double>>) list of matrix of suitability for each timestep.}
 }
 \value{
 suitable sites as a sparse matrix

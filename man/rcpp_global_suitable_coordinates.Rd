@@ -2,12 +2,12 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_global_suitable_coordinates}
 \alias{rcpp_global_suitable_coordinates}
-\title{Calculate the coordinates of the suitable sites.}
+\title{rcpp_global_suitable_coordinates.}
 \usage{
 rcpp_global_suitable_coordinates(globalSuitableSites)
 }
 \arguments{
-\item{globalSuitableSites}{support matrix containing index of each sites}
+\item{globalSuitableSites}{(Eigen::SparseMatrix<double>) support matrix containing index of each sites}
 }
 \value{
 coordinates of the suitable sites as a matrix

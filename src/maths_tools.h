@@ -25,13 +25,15 @@ using namespace Eigen;
 
 void rcpp_set_seed(unsigned int seed);
 
+double myrv();
+
+int randomfunc3(int j);
+
 int index_random_choice_non_uniform (Rcpp::NumericVector ununiform_probabilities);
 
 NumericVector eval_probabilityVector (Eigen::SparseVector<double> probabilityVector, int threshold1);
 
 NumericVector eval_probabilityVector_adding (Eigen::SparseVector<double> probabilityVector, Eigen::SparseVector<double> probabilityVector2,int threshold1);
-
-int randomfunc3(int j);
 
 NumericVector generate_permutation3(int permutation_size, int total_size);
 

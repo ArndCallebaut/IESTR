@@ -37,6 +37,30 @@ NULL
 #' @param current current probabilities of presence of the species at the end of the cycles, with the unchanged individual. 
 NULL
 
+#' test if removing each site can allow to still reach the threshold with a given confidence
+#' then choose the more expensive choice to remove it from the individual.
+#'
+#' @param viablesValues2 matrix of effects of introduction of each choice.
+#' @param threshold number of sites colonised desired.
+#' @param confidence matrix of effects of introduction of each choice.
+#' @param viablesTriplets link between sites&time and viablesValues2.
+#' @param population total population of the current generation in the evolutionnary algorithm.
+#' @param pop index of the studied individual of the population
+#' @param current current probabilities of presence of the species at the end of the cycles, with the unchanged individual. 
+NULL
+
+#' test if adding a site can allow to reach the threshold with a given confidence
+#' then choose the less expensive choice.
+#'
+#' @param viablesValues2 matrix of effects of introduction of each choice.
+#' @param threshold number of sites colonised desired.
+#' @param confidence desired confidence of reaching a certain number of sites
+#' @param viablesTriplets link between sites&time and viablesValues2.
+#' @param population total population of the current generation in the evolutionnary algorithm.
+#' @param pop index of the studied individual of the population
+#' @param current current probabilities of presence of the species at the end of the cycles, with the unchanged individual. 
+NULL
+
 #' return the probability that the number of success of Bernouillis event with probabilities given is between
 #' zero and the given threshold 
 #'
@@ -49,11 +73,6 @@ NULL
 #' @param probabilityVector first vector
 #' @param probabilityVector2 second vector
 #' @param threshold1 maximum value of success tested, inclued cases with more success.
-NULL
-
-#' get a random value between 0 & (j-1)
-#'
-#' @param j limit-1 of random value
 NULL
 
 #' generate a permutation.
@@ -81,6 +100,18 @@ rcpp_set_seed <- function(seed) {
     invisible(.Call(`_IESTR_rcpp_set_seed`, seed))
 }
 
+#' strictly runif(1); get random from R for reproductibility
+myrv <- function() {
+    .Call(`_IESTR_myrv`)
+}
+
+#' get a random value between 0 & (j-1)
+#'
+#' @param j limit-1 of random value
+randomfunc3 <- function(j) {
+    .Call(`_IESTR_randomfunc3`, j)
+}
+
 #' return random value from ununiform probability set. 
 #'
 #' @param ununiform_probabilities0 Rcpp vector of probabilities for each indices value
@@ -104,155 +135,211 @@ proba_matrix_mult3 <- function(A, B) {
     .Call(`_IESTR_proba_matrix_mult3`, A, B)
 }
 
+#' rcpp_global_suitable_sites.
+#' 
 #' Establishes from the consecutiveSuitabilityMatrix what are the
 #' study sites in the map and attribute them an index used in 
 #' other functions.
 #' Warning : the indices start at 1.
 #'
-#' @param consecutiveSuitabilityMatrix list of matrix of suitability for each timestep.
+#' @param consecutiveSuitabilityMatrix (std::list<Eigen::SparseMatrix<double>>) list of matrix of suitability for each timestep.
 #' @return suitable sites as a sparse matrix
 #' @export
 rcpp_global_suitable_sites <- function(consecutiveSuitabilityMatrix) {
     .Call(`_IESTR_rcpp_global_suitable_sites`, consecutiveSuitabilityMatrix)
 }
 
+#' rcpp_global_suitable_coordinates.
+#' 
 #' Calculate the coordinates of the suitable sites.
 #'
-#' @param globalSuitableSites support matrix containing index of each sites
+#' @param globalSuitableSites (Eigen::SparseMatrix<double>) support matrix containing index of each sites
 #' @return coordinates of the suitable sites as a matrix
 #' @export
 rcpp_global_suitable_coordinates <- function(globalSuitableSites) {
     .Call(`_IESTR_rcpp_global_suitable_coordinates`, globalSuitableSites)
 }
 
-#' Calculate the spread_matrix
+#' rcpp_spread_matrix
+#' 
+#' Calculate the spread_matrix.
 #'
-#' @param Eigen::SparseMatrix<double> globalSuitableSites support matrix containing index of each sites
-#' @param Rcpp::NumericMatrix globalSuitableCoordinates support matrix coordinates of each sites
-#' @param Rcpp::NumericMatrix migrationKernel matrix modelling spread properties of the species.
+#' @param globalSuitableSites (Eigen::SparseMatrix<double>) support matrix containing index of each sites
+#' @param globalSuitableCoordinates (Rcpp::NumericMatrix) support matrix coordinates of each sites
+#' @param migrationKernel (Rcpp::NumericMatrix) matrix modelling spread properties of the species.
 #' @return Spread matrix used to model spread behavior of the species without suitability
 #' @export
 rcpp_spread_matrix <- function(globalSuitableSites, globalSuitableCoordinates, migrationKernel) {
     .Call(`_IESTR_rcpp_spread_matrix`, globalSuitableSites, globalSuitableCoordinates, migrationKernel)
 }
 
+#' rcpp_local_transition_matrix
+#' 
 #' Calculate the local transition matrices from the spread matrix and suitability matrices
 #'
-#' @param std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix list of suitability matrix
-#' @param Eigen::SparseMatrix<double> spreadmatrix matrix used to model spread behavior of the species without suitability
-#' @param Rcpp::NumericMatrix globalSuitableCoordinates support matrix coordinates of each sites
+#' @param consecutiveSuitabilityMatrix (std::list<Eigen::SparseMatrix<double>>) list of suitability matrix
+#' @param spreadmatrix (Eigen::SparseMatrix<double>) matrix used to model spread behavior of the species without suitability
+#' @param globalSuitableCoordinates (Rcpp::NumericMatrix) support matrix coordinates of each sites
 #' @return list of matrix used to model spread behavior of the species with suitability, between two adjacent timestep
 #' @export
 rcpp_local_transition_matrix <- function(consecutiveSuitabilityMatrix, spreadmatrix, globalSuitableCoordinates) {
     .Call(`_IESTR_rcpp_local_transition_matrix`, consecutiveSuitabilityMatrix, spreadmatrix, globalSuitableCoordinates)
 }
 
+#' rcpp_transition_matrix
+#' 
 #' Calculate the transition matrices from the local transition matrices
 #'
-#' @param std::list<Eigen::SparseMatrix<double>> list of matrix used to model spread behavior of the species with suitability, between two adjacent timestep
+#' @param localtransitionmatrices (std::list<Eigen::SparseMatrix<double>>) list of matrix used to model spread behavior of the species with suitability, between two adjacent timestep
 #' @return list of transition matrices from any timestep to the last timestep.
 #' @export
 rcpp_transition_matrix <- function(localtransitionmatrices) {
     .Call(`_IESTR_rcpp_transition_matrix`, localtransitionmatrices)
 }
 
+#' rcpp_viable_sites
+#' 
 #' Calculate sites&times introduction considered "viable" 
 #' eg that are not totally bested by other timings of introduction for the same site, 
 #' and that are efficient enough. (colonises more than one site on average).
 #'
-#' @param Eigen::SparseMatrix<double>> transitionmatrices list of transition matrices from any timestep to the last timestep.
+#' @param transitionmatrices (Eigen::SparseMatrix<double>>) list of transition matrices from any timestep to the last timestep.
 #' @return boolean sparse matrix, each row correspond to a time, each column to a site. (1=viable; 0=not viable)
 #' @export
 rcpp_viable_sites <- function(transitionmatrices) {
     .Call(`_IESTR_rcpp_viable_sites`, transitionmatrices)
 }
 
+#' rcpp_viable_triplet
+#' 
 #' Returns matrix summing up information of each viable site&time pair.
+#' col1&2 = X & Y coordinates
+#' col3 = time of introduction
+#' col4 = cost of introduction
+#' col5 = index of introduction
+#' col6 = mean number of final colonised sites due to introduction
 #'
-#' @param Eigen::SparseMatrix<double> viableSites boolean sparse matrix, each row correspond to a time, each column to a site. (1=viable; 0=not viable)
-#' @param std::list<Eigen::SparseMatrix<double>> transitionmatrices list of transition matrices from any timestep to the last timestep.
-#' @param Rcpp::NumericMatrix globalSuitableCoordinates support matrix coordinates of each sites
-#' @param Eigen::SparseMatrix<double> globalSuitableSites support matrix containing index of each sites
-#' @param Eigen::SparseMatrix<double> costMatrix matrix of cost of introduction
+#' @param viableSites (Eigen::SparseMatrix<double>) boolean sparse matrix, each row correspond to a time, each column to a site. (1=viable; 0=not viable)
+#' @param transitionmatrices (std::list<Eigen::SparseMatrix<double>>) list of transition matrices from any timestep to the last timestep.
+#' @param globalSuitableCoordinates (Rcpp::NumericMatrix) support matrix coordinates of each sites
+#' @param globalSuitableSites (Eigen::SparseMatrix<double>) support matrix containing index of each sites
+#' @param costMatrix (Eigen::SparseMatrix<double>) matrix of cost of introduction
 #' @return For each viable site : index, position on map, time, and cost.
 #' @export
 rcpp_viable_triplets <- function(viableSites, transitionmatrices, globalSuitableCoordinates, globalSuitableSites, costMatrix) {
     .Call(`_IESTR_rcpp_viable_triplets`, viableSites, transitionmatrices, globalSuitableCoordinates, globalSuitableSites, costMatrix)
 }
 
+#' rcpp_viable_values
+#' 
 #' Summing up the effect on the final state of the system of each viable site&time pair.
 #'
-#' @param Rcpp::NumericMatrix viablesTriplets For each viable site : index, position on map, time, and cost.
-#' @param Eigen::SparseMatrix<double> viableSites boolean sparse matrix, each row correspond to a time, each column to a site. (1=viable; 0=not viable)
-#' @param Eigen::SparseMatrix<double> globalSuitableSites support matrix containing index of each sites
-#' @param std::vector<Eigen::SparseMatrix<double>> transitionmatrices list of transition matrices from any timestep to the last timestep.
+#' @param viablesTriplets (Rcpp::NumericMatrix) For each viable site : index, position on map, time, and cost.
+#' @param viableSites (Eigen::SparseMatrix<double>) boolean sparse matrix, each row correspond to a time, each column to a site. (1=viable; 0=not viable)
+#' @param globalSuitableSites (Eigen::SparseMatrix<double> ) support matrix containing index of each sites
+#' @param transitionmatrices (std::vector<Eigen::SparseMatrix<double>>) list of transition matrices from any timestep to the last timestep.
 #' @return for each viable site : index, position on map, time, and cost.
 #' @export
 rcpp_viable_values <- function(viablesTriplets, viableSites, globalSuitableSites, transitionmatrices) {
     .Call(`_IESTR_rcpp_viable_values`, viablesTriplets, viableSites, globalSuitableSites, transitionmatrices)
 }
 
+#' rcpp_eval_current_prob
+#' 
 #' Evaluate how would evolve the current present species without introduction.
 #'
-#' @param threshold number of site with presence we want to obtain.
-#' @param Eigen::SparseMatrix<double> currentPresenceMatrix matrix of presence of the species.
-#' @param std::vector<Eigen::SparseMatrix<double>> transitionmatrices list of transition matrices from any timestep to the last timestep.
-#' @param Eigen::SparseMatrix<double> globalSuitableSites support matrix containing index of each sites
+#' @param threshold (int) number of site with presence we want to obtain.
+#' @param currentPresenceMatrix (Eigen::SparseMatrix<double>) matrix of presence of the species.
+#' @param transitionmatrices (std::vector<Eigen::SparseMatrix<double>>) list of transition matrices from any timestep to the last timestep.
+#' @param globalSuitableSites (Eigen::SparseMatrix<double>) support matrix containing index of each sites
 #' @return for each viable site : index, position on map, time, and cost.
 #' @export
 rcpp_eval_current_prob <- function(threshold, currentPresenceMatrix, transitionmatrices, globalSuitableSites) {
     .Call(`_IESTR_rcpp_eval_current_prob`, threshold, currentPresenceMatrix, transitionmatrices, globalSuitableSites)
 }
 
+#' rcpp_pheromons
+#' 
 #' Evaluate the potential of each site&time pair, and give them weights for the optimization algorithm.
 #'
-#' @param Rcpp::NumericMatrix viablesTriplets information about each of the viable site&time pair.
+#' @param viablesTriplets (Rcpp::NumericMatrix) information about each of the viable site&time pair.
 #' @return a pre-ranking of each site&time pair for the algorithm.
 #' @export
 rcpp_pheromons <- function(viablesTriplets) {
     .Call(`_IESTR_rcpp_pheromons`, viablesTriplets)
 }
 
-#' Genrate initial population for the genetic algorithm.
+#' rcpp_generate_population
+#' 
+#' Generate initial population for the genetic algorithm.
 #'
-#' @param Rcpp::NumericVector pheromons weights of relative importance of each site&time pair.
-#' @param Eigen::SparseMatrix<double> globalSuitableSites support matrix containing index of each sites
-#' @param int npop number of individuals in the initial population
-#' @param int nbtoplant pre-evaluate number of introduction necessary (overestimated, usually)
+#' @param pheromons (Rcpp::NumericVector) weights of relative importance of each site&time pair.
+#' @param globalSuitableSites (Eigen::SparseMatrix<double>) support matrix containing index of each sites
+#' @param npop (int) number of individuals in the initial population
+#' @param nbtoplant (int) pre-evaluate number of introduction necessary (overestimated, usually)
 #' @return an initial population of set of site&time choices of introduction
 #' @export
 rcpp_generate_population <- function(pheromons, globalSuitableSites, npop, nbtoplant) {
     .Call(`_IESTR_rcpp_generate_population`, pheromons, globalSuitableSites, npop, nbtoplant)
 }
 
-#' Genetic algorithm used to optimised choices of introduction under the constraint of reaching a dertain number of 
+#' rcpp_algorithm_opt
+#' 
+#' (please use rcpp_algorithm_opt2, this version is slower) Genetic algorithm used to optimised choices of introduction under the constraint of reaching a dertain number of 
 #' presence at the end of the study period (threshold) with a minimal probability (confidence) while miimizing the cost
 #' of all the introductions
 #'
-#' @param Rcpp::NumericVector pheromons weights of relative importance of each site&time pair.
-#' @param Rcpp::NumericMatrix viablesTriplets For each viable site : index, position on map, time, and cost.
-#' @param Rcpp::NumericMatrix population0 An initial population of set of site&time choices of introduction
-#' @param Eigen::SparseMatrix<double> costMatrix matrix of costs of introduction, sparse.
-#' @param Eigen::SparseMatrix<double> currentPresenceMatrix matrix of current presence of the species, sparse.
-#' @param std::vector<Eigen::SparseMatrix<double>> transitionmatriceslist of transition matrices from any timestep to the last timestep.
-#' @param Eigen::SparseMatrix<double> globalSuitableSites matrix of viable sites to use for the optimiation part.
-#' @param Eigen::SparseMatrix<double> viablesValues viables values from transitions matrices from viable sites.
-#' @param int threshold number of presence site to reach at the end of the studied period, with the introductions
-#' @param double confidence minimal probability to reach the threshold accepted by the optimisation algorithm 
-#' @param int npop genetic algorithm : size of the population
-#' @param int nsur genetic algorithm : size of the surviving population
-#' @param int ngen genetic algorithm : number of generation
+#' @param pheromons (Rcpp::NumericVector) weights of relative importance of each site&time pair.
+#' @param viablesTriplets (Rcpp::NumericMatrix) For each viable site : index, position on map, time, and cost.
+#' @param population0 (Rcpp::NumericMatrix) An initial population of set of site&time choices of introduction
+#' @param costMatrix (Eigen::SparseMatrix<double>) matrix of costs of introduction, sparse.
+#' @param currentPresenceMatrix (Eigen::SparseMatrix<double>) matrix of current presence of the species, sparse.
+#' @param transitionmatrices (std::vector<Eigen::SparseMatrix<double>>) list of transition matrices from any timestep to the last timestep.
+#' @param globalSuitableSites (Eigen::SparseMatrix<double>) matrix of viable sites to use for the optimiation part.
+#' @param viablesValues (Eigen::SparseMatrix<double>) viables values from transitions matrices from viable sites.
+#' @param threshold (int) number of presence site to reach at the end of the studied period, with the introductions
+#' @param confidence (double) minimal probability to reach the threshold accepted by the optimisation algorithm 
+#' @param npop (int) genetic algorithm : size of the population
+#' @param nsur (int) genetic algorithm : size of the surviving population
+#' @param ngen (int) genetic algorithm : number of generation
+#' @param nbtoplant evaluated maximum number of introduction necessary to satisfy the constraints of final presence.
 #' @return an optimised population matrix of set of site&time choices of introduction.
 #' @export
 rcpp_algorithm_opt <- function(pheromons, viablesTriplets, population0, costMatrix, currentPresenceMatrix, transitionmatrices, globalSuitableSites, viablesValues, threshold, confidence, npop, nsur, ngen, nbtoplant) {
     .Call(`_IESTR_rcpp_algorithm_opt`, pheromons, viablesTriplets, population0, costMatrix, currentPresenceMatrix, transitionmatrices, globalSuitableSites, viablesValues, threshold, confidence, npop, nsur, ngen, nbtoplant)
 }
 
+#' rcpp_algorithm_opt2
+#' 
+#' Genetic algorithm used to optimised choices of introduction under the constraint of reaching a dertain number of 
+#' presence at the end of the study period (threshold) with a minimal probability (confidence) while miimizing the cost
+#' of all the introductions
+#'
+#' @param pheromons (Rcpp::NumericVector) weights of relative importance of each site&time pair.
+#' @param viablesTriplets (Rcpp::NumericMatrix) For each viable site : index, position on map, time, and cost.
+#' @param population0 (Rcpp::NumericMatrix) An initial population of set of site&time choices of introduction
+#' @param costMatrix (Eigen::SparseMatrix<double>) matrix of costs of introduction, sparse.
+#' @param currentPresenceMatrix (Eigen::SparseMatrix<double>) matrix of current presence of the species, sparse.
+#' @param transitionmatrices (std::vector<Eigen::SparseMatrix<double>>) list of transition matrices from any timestep to the last timestep.
+#' @param globalSuitableSites (Eigen::SparseMatrix<double>) matrix of viable sites to use for the optimiation part.
+#' @param viablesValues (Eigen::SparseMatrix<double>) viables values from transitions matrices from viable sites.
+#' @param threshold (int) number of presence site to reach at the end of the studied period, with the introductions
+#' @param confidence (double) minimal probability to reach the threshold accepted by the optimisation algorithm 
+#' @param npop (int) genetic algorithm : size of the population
+#' @param nsur (int) genetic algorithm : size of the surviving population
+#' @param ngen (int) genetic algorithm : number of generations
+#' @param nbtoplant evaluated maximum number of introduction necessary to satisfy the constraints of final presence.
+#' @return an optimised population matrix of set of site&time choices of introduction.
+#' @export
+rcpp_algorithm_opt2 <- function(pheromons, viablesTriplets, population0, costMatrix, currentPresenceMatrix, transitionmatrices, globalSuitableSites, viablesValues, threshold, confidence, npop, nsur, ngen, nbtoplant) {
+    .Call(`_IESTR_rcpp_algorithm_opt2`, pheromons, viablesTriplets, population0, costMatrix, currentPresenceMatrix, transitionmatrices, globalSuitableSites, viablesValues, threshold, confidence, npop, nsur, ngen, nbtoplant)
+}
+
 #' Rewriting the final population given by the genetic algorithm with coordinates and times of introduction
 #'
-#' @param Rcpp::NumericMatrix lastPopulation a matrix of an optimised population obtain with the genetic algorithm
-#' @param Rcpp::NumericMatrix viablesTriplets a matrix of information about each viable site.
-#' @return the choices of introduction in coordinates and timesteps.
+#' @param lastPopulation (Rcpp::NumericMatrix) a matrix of an optimised population obtain with the genetic algorithm
+#' @param viablesTriplets (Rcpp::NumericMatrix) a matrix of information about each viable site.
+#' @return the choices of introduction in coordinates and timesteps. 1st&2nd columns are the XY coordinates, 3rd is the timesteps, 4st is the cost, 5st is the index on the grid.
 #' @export
 rcpp_result_to_choice <- function(lastPopulation, viablesTriplets) {
     .Call(`_IESTR_rcpp_result_to_choice`, lastPopulation, viablesTriplets)

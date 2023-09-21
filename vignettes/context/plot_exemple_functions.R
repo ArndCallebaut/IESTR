@@ -2,15 +2,14 @@
 ## Settings
 #################################################
 
+
 library(ggplot2)
 library(cowplot)
 library(viridis)
-library(wesanderson)
 library(tidyverse)
 library(gridExtra)
 library(wesanderson)
 library(dplyr)
-
 
 #################################################
 ## Figure 2 : presentation of the island & t°
@@ -52,7 +51,9 @@ do_plot_fig2 = function(nr, nc, height_map, climate_maps, N_cycles){
                          strip.text  = element_blank())
   
   plt_temp = grid.arrange(plt1, plt2, ncol = 2, widths=c(1, 2.3))
-  plot(plt_temp)
+  #plot(plt_temp)
+  plot(plt1)
+  plot(plt2)
   #ggsave(plot=plt_temp,name, width = 15, height = 5)
   return(plt_temp)
 }

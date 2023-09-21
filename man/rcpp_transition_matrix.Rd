@@ -2,12 +2,12 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_transition_matrix}
 \alias{rcpp_transition_matrix}
-\title{Calculate the transition matrices from the local transition matrices}
+\title{rcpp_transition_matrix}
 \usage{
 rcpp_transition_matrix(localtransitionmatrices)
 }
 \arguments{
-\item{std::list<Eigen::SparseMatrix<double>>}{list of matrix used to model spread behavior of the species with suitability, between two adjacent timestep}
+\item{localtransitionmatrices}{(std::list<Eigen::SparseMatrix<double>>) list of matrix used to model spread behavior of the species with suitability, between two adjacent timestep}
 }
 \value{
 list of transition matrices from any timestep to the last timestep.

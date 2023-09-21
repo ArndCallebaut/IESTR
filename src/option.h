@@ -44,6 +44,7 @@ Eigen::SparseMatrix<double> rcpp_viable_values(Rcpp::NumericMatrix viablesTriple
                                                Eigen::SparseMatrix<double> globalSuitableSites,
                                                std::vector<Eigen::SparseMatrix<double>> transitionmatrices);
 
+
 NumericVector rcpp_eval_current_prob(int threshold,
                                      Eigen::SparseMatrix<double> currentPresenceMatrix,
                                      std::vector<Eigen::SparseMatrix<double>> transitionmatrices,
@@ -68,8 +69,20 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
                                        int ngen,
                                        int nbtoplant);
 
-
-
+Rcpp::NumericVector rcpp_algorithm_opt2(Rcpp::NumericVector pheromons,
+                                       Rcpp::NumericMatrix viablesTriplets,
+                                       Rcpp::NumericMatrix population0,
+                                       Eigen::SparseMatrix<double> costMatrix,
+                                       Eigen::SparseMatrix<double> currentPresenceMatrix,
+                                       std::vector<Eigen::SparseMatrix<double>> transitionmatrices,
+                                       Eigen::SparseMatrix<double> globalSuitableSites,
+                                       Eigen::SparseMatrix<double> viablesValues,
+                                       int threshold,
+                                       double confidence,
+                                       int npop,
+                                       int nsur,
+                                       int ngen,
+                                       int nbtoplant);
 
 
 Rcpp::NumericMatrix rcpp_result_to_choice(Rcpp::NumericMatrix lastPopulation,Rcpp::NumericMatrix viablesTriplets);

@@ -1,9 +1,11 @@
+#' IESTR_process
+#' 
 #' Whole IESTR process
 #'
 #' @param suitability_maps list of matrix of suitability for each timestep.
 #' @param presence_map sparse matrix of presence of the species.
 #' @param migr_spe matrix of probability of spread in neighbour cells at each time step.
-#' @param cost_map Cost of introduction of the species in each cell.
+#' @param cost Cost of introduction of the species in each cell.
 #' @param threshold Number of sites with presence is wanted at the end of the study period
 #' @param confidence Probability that the threshold is reached is wanted (must be <1)
 #' @param npop Genetic algorithm : size of the initial population
@@ -14,7 +16,7 @@
 IESTR_process = function(suitability_maps,
                          presence_map,
                          migr_spe,
-                         cost_map,
+                         cost,
                          threshold,
                          confidence,
                          npop,
@@ -41,7 +43,7 @@ IESTR_process = function(suitability_maps,
   
   #Utility reindicing of values of the transition matrices
   vs = rcpp_viable_sites(tm)
-  vt = rcpp_viable_triplets(vs,tm,gsc,gss,cost_map)
+  vt = rcpp_viable_triplets(vs,tm,gsc,gss,cost)
   vv = rcpp_viable_values(vt,vs,gss,tm)
   
   #Pre-processing for the optimisation part
@@ -51,7 +53,7 @@ IESTR_process = function(suitability_maps,
   po = rcpp_generate_population(ph,gss,npop,ntp) #generate the initial population for the genetic algorithm.
   
   #Genetic algorithm use to optimise introduction choices
-  resultat1 = rcpp_algorithm_opt(ph,vt,po,cost,presence_map,tm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
+  resultat1 = rcpp_algorithm_opt2(ph,vt,po,cost,presence_map,tm,gss,vv,threshold,confidence,npop,nsur,ngen,ntp)
   
   #Results filtered
   choix1 = rcpp_result_to_choice(resultat1,vt)

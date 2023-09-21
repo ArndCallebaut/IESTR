@@ -43,4 +43,19 @@ void optimise_add_site(Eigen::SparseMatrix<double> viablesValues2,
                        int pop,
                        Eigen::SparseVector<double> current);
 
+int optimise_remove_site2(Eigen::SparseMatrix<double> viablesValues2, 
+                         int threshold, 
+                         double confidence, 
+                         Rcpp::NumericMatrix viablesTriplets, 
+                         Rcpp::NumericMatrix population, 
+                         int pop,
+                         Eigen::SparseVector<double> current);
+
+void optimise_add_site2(Eigen::SparseMatrix<double> viablesValues2, 
+                       int threshold, double confidence, 
+                       Rcpp::NumericMatrix viablesTriplets, 
+                       Rcpp::NumericMatrix population,
+                       int pop,
+                       Eigen::SparseVector<double> current);
+
 #endif

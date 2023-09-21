@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_local_transition_matrix}
 \alias{rcpp_local_transition_matrix}
-\title{Calculate the local transition matrices from the spread matrix and suitability matrices}
+\title{rcpp_local_transition_matrix}
 \usage{
 rcpp_local_transition_matrix(
   consecutiveSuitabilityMatrix,
@@ -11,11 +11,11 @@ rcpp_local_transition_matrix(
 )
 }
 \arguments{
-\item{std::list<Eigen::SparseMatrix<double>>}{consecutiveSuitabilityMatrix list of suitability matrix}
+\item{consecutiveSuitabilityMatrix}{(std::list<Eigen::SparseMatrix<double>>) list of suitability matrix}
 
-\item{Eigen::SparseMatrix<double>}{spreadmatrix matrix used to model spread behavior of the species without suitability}
+\item{spreadmatrix}{(Eigen::SparseMatrix<double>) matrix used to model spread behavior of the species without suitability}
 
-\item{Rcpp::NumericMatrix}{globalSuitableCoordinates support matrix coordinates of each sites}
+\item{globalSuitableCoordinates}{(Rcpp::NumericMatrix) support matrix coordinates of each sites}
 }
 \value{
 list of matrix used to model spread behavior of the species with suitability, between two adjacent timestep

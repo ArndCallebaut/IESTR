@@ -123,7 +123,7 @@ plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=0:1, ylim=0:1)
 legend("topleft", legend =c('Suitable conditions lost',
                             'Suitable conditions maintained', 
                             'New suitable conditions',
-                            'Initially present sites'),
+                            'Sites of initial presence'),
        pch=16, 
        pt.cex=3, 
        cex=1.5, 

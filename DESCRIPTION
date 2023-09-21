@@ -1,14 +1,17 @@
 Package: IESTR
 Type: Package
-Title: IESTR is a package for modelisation of species range dynamics in time, and optimisation of introduction choices under different constraints.
+Title: IESTR, a package for modelisation of species range dynamics in time, and optimisation of introduction choices under different constraints
 Version: 1.0
 Date: 2023-12-05
 Author: Arnaud Callebaut
 Maintainer: Arnaud Callebaut <arnaud.callebaut@outlook.fr>
-Description: The main objective of IESTR is to calculate where and when to introduce a species, to satisfy a certain objective of conservation, using trnasition matrix. The package use the concept of transition matrices using information about the species given by the user : migration kernel, map of presence, suitability over time. Transition matrices allow to know how evolves the introduction of the species in any point in space and time of the map. These allow, under optimisation constraints given by the user (such as a limited budget, or an objective of area of presence by the end of the study presence)
+Description: The main objective of IESTR is to calculate where and when to introduce a species, to satisfy a certain objective of conservation, using trnasition matrix. The package use the concept of transition matrices using information about the species given by the user : migration kernel, map of presence, suitability over time. Transition matrices allow to know how evolves the introduction of the species in any point in space and time of the map. These allow, under optimisation constraints given by the user (such as a limited budget, or an objective of area of presence by the end of the study presence).
 License: GPL (>= 2)
-Suggests: 
+Suggests: knitr,rmarkdown,
+    testthat (>= 3.0.0)
 Encoding: UTF-8
+VignetteBuilder: knitr
 RoxygenNote: 7.2.3
-Imports: Rcpp (>= 1.0.7), Matrix
+Imports: Rcpp (>= 1.0.7),Matrix,dplyr,ggplot2,lattice,purrr,raster,cowplot,viridis,wesanderson,tidyverse,gridExtra
 LinkingTo: RcppArmadillo, RcppEigen,Rcpp
+Config/testthat/edition: 3

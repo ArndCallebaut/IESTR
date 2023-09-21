@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_viable_triplets}
 \alias{rcpp_viable_triplets}
-\title{Returns matrix summing up information of each viable site&time pair.}
+\title{rcpp_viable_triplet}
 \usage{
 rcpp_viable_triplets(
   viableSites,
@@ -13,15 +13,24 @@ rcpp_viable_triplets(
 )
 }
 \arguments{
-\item{std::list<Eigen::SparseMatrix<double>>}{transitionmatrices list of transition matrices from any timestep to the last timestep.}
+\item{viableSites}{(Eigen::SparseMatrix<double>) boolean sparse matrix, each row correspond to a time, each column to a site. (1=viable; 0=not viable)}
 
-\item{Rcpp::NumericMatrix}{globalSuitableCoordinates support matrix coordinates of each sites}
+\item{transitionmatrices}{(std::list<Eigen::SparseMatrix<double>>) list of transition matrices from any timestep to the last timestep.}
 
-\item{Eigen::SparseMatrix<double>}{costMatrix matrix of cost of introduction}
+\item{globalSuitableCoordinates}{(Rcpp::NumericMatrix) support matrix coordinates of each sites}
+
+\item{globalSuitableSites}{(Eigen::SparseMatrix<double>) support matrix containing index of each sites}
+
+\item{costMatrix}{(Eigen::SparseMatrix<double>) matrix of cost of introduction}
 }
 \value{
 For each viable site : index, position on map, time, and cost.
 }
 \description{
 Returns matrix summing up information of each viable site&time pair.
+col1&2 = X & Y coordinates
+col3 = time of introduction
+col4 = cost of introduction
+col5 = index of introduction
+col6 = mean number of final colonised sites due to introduction
 }

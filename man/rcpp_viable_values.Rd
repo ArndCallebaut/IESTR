@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_viable_values}
 \alias{rcpp_viable_values}
-\title{Summing up the effect on the final state of the system of each viable site&time pair.}
+\title{rcpp_viable_values}
 \usage{
 rcpp_viable_values(
   viablesTriplets,
@@ -12,11 +12,13 @@ rcpp_viable_values(
 )
 }
 \arguments{
-\item{Rcpp::NumericMatrix}{viablesTriplets For each viable site : index, position on map, time, and cost.}
+\item{viablesTriplets}{(Rcpp::NumericMatrix) For each viable site : index, position on map, time, and cost.}
 
-\item{Eigen::SparseMatrix<double>}{globalSuitableSites support matrix containing index of each sites}
+\item{viableSites}{(Eigen::SparseMatrix<double>) boolean sparse matrix, each row correspond to a time, each column to a site. (1=viable; 0=not viable)}
 
-\item{std::vector<Eigen::SparseMatrix<double>>}{transitionmatrices list of transition matrices from any timestep to the last timestep.}
+\item{globalSuitableSites}{(Eigen::SparseMatrix<double> ) support matrix containing index of each sites}
+
+\item{transitionmatrices}{(std::vector<Eigen::SparseMatrix<double>>) list of transition matrices from any timestep to the last timestep.}
 }
 \value{
 for each viable site : index, position on map, time, and cost.

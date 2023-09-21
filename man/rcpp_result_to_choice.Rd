@@ -7,10 +7,12 @@
 rcpp_result_to_choice(lastPopulation, viablesTriplets)
 }
 \arguments{
-\item{Rcpp::NumericMatrix}{viablesTriplets a matrix of information about each viable site.}
+\item{lastPopulation}{(Rcpp::NumericMatrix) a matrix of an optimised population obtain with the genetic algorithm}
+
+\item{viablesTriplets}{(Rcpp::NumericMatrix) a matrix of information about each viable site.}
 }
 \value{
-the choices of introduction in coordinates and timesteps.
+the choices of introduction in coordinates and timesteps. 1st&2nd columns are the XY coordinates, 3rd is the timesteps, 4st is the cost, 5st is the index on the grid.
 }
 \description{
 Rewriting the final population given by the genetic algorithm with coordinates and times of introduction

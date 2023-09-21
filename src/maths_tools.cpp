@@ -35,6 +35,22 @@ void rcpp_set_seed(unsigned int seed) {
   set_seed_r(seed);  
 }
 
+//' strictly runif(1); get random from R for reproductibility
+// [[Rcpp::export]]
+double myrv() {
+  NumericVector x = runif(1);
+  return x[0];
+}
+
+//' get a random value between 0 & (j-1)
+//'
+//' @param j limit-1 of random value
+// [[Rcpp::export]]
+int randomfunc3(int j){
+  return ((int) (myrv()*j)) % j;
+}
+
+
 //' return random value from ununiform probability set. 
 //'
 //' @param ununiform_probabilities0 Rcpp vector of probabilities for each indices value
@@ -46,7 +62,8 @@ int index_random_choice_non_uniform (Rcpp::NumericVector ununiform_probabilities
   for (int h=1; h<ununiform_probabilities.length() ; h++){
     cumulative_probabilities(h) = ununiform_probabilities(h)+cumulative_probabilities(h-1);  
   }
-  double randy = ((double) rand() / (RAND_MAX)) ;
+  //double randy = ((double) rand() / (RAND_MAX)) ;
+  double randy = myrv();
   for (int h = 0 ; h < ununiform_probabilities.length() ; h++){
     if (randy<cumulative_probabilities(h)){
       return(int(h));
@@ -71,12 +88,13 @@ NumericVector eval_probabilityVector (Eigen::SparseVector<double> probabilityVec
   nScores(0)=1;
   for (Eigen::SparseVector<double>::InnerIterator it(probabilityVector); it; ++it)
   {
-    nScores(threshold) =  it.value() * nScores(threshold-1) +  nScores(threshold);
+    nScores(threshold) =  it.value() * nScores(threshold-1) +  nScores(threshold) ;
     for (h=(threshold-1); h>=1; --h){
       nScores(h) =  it.value() * nScores(h-1) +  (1-it.value()) * nScores(h);
     }
     nScores[0] = ((1-it.value()) * nScores[0]);
   }
+  
   return(nScores) ;
 }
 
@@ -95,12 +113,6 @@ NumericVector eval_probabilityVector_adding (Eigen::SparseVector<double> probabi
   return(eval_probabilityVector(cury,threshold1)) ;
 }
 
-//' get a random value between 0 & (j-1)
-//'
-//' @param j limit-1 of random value
-int randomfunc3(int j){
-  return rand() % j;
-}
 
 //' generate a permutation.
 //'
@@ -241,7 +253,7 @@ Eigen::SparseMatrix<double> proba_matrix_mult3(Eigen::SparseMatrix<double> A,Eig
   double val3;
   int i;
   std::cout << "A..."<<A.nonZeros()<<" ------- B..."<<B.nonZeros()<<std::endl;
-  double prec = 0.0005;
+  double prec = 0.0001;
   
   for (int k=0; k<B.outerSize(); ++k){
     Eigen::SparseVector<double> local(n);

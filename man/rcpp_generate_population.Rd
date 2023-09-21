@@ -2,20 +2,22 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_generate_population}
 \alias{rcpp_generate_population}
-\title{Genrate initial population for the genetic algorithm.}
+\title{rcpp_generate_population}
 \usage{
 rcpp_generate_population(pheromons, globalSuitableSites, npop, nbtoplant)
 }
 \arguments{
-\item{Rcpp::NumericVector}{pheromons weights of relative importance of each site&time pair.}
+\item{pheromons}{(Rcpp::NumericVector) weights of relative importance of each site&time pair.}
 
-\item{Eigen::SparseMatrix<double>}{globalSuitableSites support matrix containing index of each sites}
+\item{globalSuitableSites}{(Eigen::SparseMatrix<double>) support matrix containing index of each sites}
 
-\item{int}{nbtoplant pre-evaluate number of introduction necessary (overestimated, usually)}
+\item{npop}{(int) number of individuals in the initial population}
+
+\item{nbtoplant}{(int) pre-evaluate number of introduction necessary (overestimated, usually)}
 }
 \value{
 an initial population of set of site&time choices of introduction
 }
 \description{
-Genrate initial population for the genetic algorithm.
+Generate initial population for the genetic algorithm.
 }

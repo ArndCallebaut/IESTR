@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_spread_matrix}
 \alias{rcpp_spread_matrix}
-\title{Calculate the spread_matrix}
+\title{rcpp_spread_matrix}
 \usage{
 rcpp_spread_matrix(
   globalSuitableSites,
@@ -11,13 +11,15 @@ rcpp_spread_matrix(
 )
 }
 \arguments{
-\item{Eigen::SparseMatrix<double>}{globalSuitableSites support matrix containing index of each sites}
+\item{globalSuitableSites}{(Eigen::SparseMatrix<double>) support matrix containing index of each sites}
 
-\item{Rcpp::NumericMatrix}{migrationKernel matrix modelling spread properties of the species.}
+\item{globalSuitableCoordinates}{(Rcpp::NumericMatrix) support matrix coordinates of each sites}
+
+\item{migrationKernel}{(Rcpp::NumericMatrix) matrix modelling spread properties of the species.}
 }
 \value{
 Spread matrix used to model spread behavior of the species without suitability
 }
 \description{
-Calculate the spread_matrix
+Calculate the spread_matrix.
 }
