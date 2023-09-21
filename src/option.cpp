@@ -20,7 +20,7 @@ using namespace Rcpp;
 using namespace Eigen;
 using namespace std::chrono;
 
-//' rcpp_global_suitable_sites.
+//' rcpp_global_suitable_sites
 //' 
 //' Establishes from the consecutiveSuitabilityMatrix what are the
 //' study sites in the map and attribute them an index used in 

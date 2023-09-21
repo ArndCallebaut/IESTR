@@ -135,7 +135,7 @@ proba_matrix_mult3 <- function(A, B) {
     .Call(`_IESTR_proba_matrix_mult3`, A, B)
 }
 
-#' rcpp_global_suitable_sites.
+#' rcpp_global_suitable_sites
 #' 
 #' Establishes from the consecutiveSuitabilityMatrix what are the
 #' study sites in the map and attribute them an index used in 

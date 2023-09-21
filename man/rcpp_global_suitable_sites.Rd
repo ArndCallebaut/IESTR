@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_global_suitable_sites}
 \alias{rcpp_global_suitable_sites}
-\title{rcpp_global_suitable_sites.}
+\title{rcpp_global_suitable_sites}
 \usage{
 rcpp_global_suitable_sites(consecutiveSuitabilityMatrix)
 }

@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This thumbnail shows an example of the full use of the IESTR package.
+This thumbnail shows an example of the full use of the IESTR package. Note that to understand this, it is necessary to have read the paper presenting the theory about IESTR method.
 
 ---
 
