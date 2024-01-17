@@ -12,6 +12,6 @@ Suggests: knitr,rmarkdown,
 Encoding: UTF-8
 VignetteBuilder: knitr
 RoxygenNote: 7.2.3
-Imports: Rcpp (>= 1.0.7),Matrix,dplyr,ggplot2,lattice,purrr,raster,cowplot,viridis,wesanderson,tidyverse,gridExtra
+Imports: Rcpp (>= 1.0.7),Matrix,dplyr,ggplot2,lattice,purrr,raster,cowplot,viridis,tidyverse,gridExtra,wesanderson
 LinkingTo: RcppArmadillo, RcppEigen,Rcpp
 Config/testthat/edition: 3

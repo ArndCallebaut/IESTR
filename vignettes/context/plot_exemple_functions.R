@@ -1,16 +1,11 @@
 #################################################
 ## Settings
 #################################################
-
-
-library(ggplot2)
 library(cowplot)
 library(viridis)
 library(tidyverse)
 library(gridExtra)
 library(wesanderson)
-library(dplyr)
-
 #################################################
 ## Figure 2 : presentation of the island & t°
 #################################################

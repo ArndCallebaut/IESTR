@@ -38,6 +38,7 @@ library(lattice)
 library(ggplot2)
 library(viridis)
 library(methods)
+library(wesanderson)
 
 ### call for support scripts related to run examples and plot results 
 source("context/building_example_functions.R")
@@ -213,8 +214,8 @@ While more population tends to mean that the pool of potential solutions will be
 
 ```{r use genetic algorithm}
 #Algorithm - genetic algo characteristics
-npop = 1000 #size of the initial population
-nsur = 100 #size of the surviving population
+npop = 10000 #size of the initial population
+nsur = 1000 #size of the surviving population
 ngen = 30 #number of generations
 
 #generate the initial population for the genetic algorithm.
@@ -314,7 +315,7 @@ case of the homogeneous costs :
 # #################################################
 # ## IESTR - 100 iterations (uniform costs)
 # #################################################
-# 
+
 # countmap = array(0,c(nrow,ncol))
 # timecount = rep(0,N_cycles)
 # NN = 100 #number of introductions
