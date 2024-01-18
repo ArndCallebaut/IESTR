@@ -20,7 +20,7 @@ using namespace Rcpp;
 using namespace Eigen;
 using namespace std::chrono;
 
-//' rcpp_global_suitable_sites
+//' @name rcpp_global_suitable_sites
 //' 
 //' Establishes from the consecutiveSuitabilityMatrix what are the
 //' study sites in the map and attribute them an index used in 
@@ -58,7 +58,7 @@ Eigen::SparseMatrix<double> rcpp_global_suitable_sites(std::list<Eigen::SparseMa
   return(globalSuitableSites);
 }
 
-//' rcpp_global_suitable_coordinates.
+//' @name rcpp_global_suitable_coordinates.
 //' 
 //' Calculate the coordinates of the suitable sites.
 //'
@@ -79,7 +79,7 @@ Rcpp::NumericMatrix rcpp_global_suitable_coordinates(Eigen::SparseMatrix<double>
   return(globalSuitableCoordinates);
 }
 
-//' rcpp_spread_matrix
+//' @name rcpp_spread_matrix
 //' 
 //' Calculate the spread_matrix.
 //'
@@ -115,7 +115,7 @@ Eigen::SparseMatrix<double> rcpp_spread_matrix(Eigen::SparseMatrix<double> globa
   return (spreadmatrix);
 }
 
-//' rcpp_local_transition_matrix
+//' @name rcpp_local_transition_matrix
 //' 
 //' Calculate the local transition matrices from the spread matrix and suitability matrices
 //'
@@ -149,7 +149,7 @@ std::list<Eigen::SparseMatrix<double>> rcpp_local_transition_matrix(std::list<Ei
   return(localtransitionmatrices);
 }
 
-//' rcpp_transition_matrix
+//' @name rcpp_transition_matrix
 //' 
 //' Calculate the transition matrices from the local transition matrices
 //'
@@ -174,7 +174,7 @@ std::vector<Eigen::SparseMatrix<double>> rcpp_transition_matrix(std::list<Eigen:
   return(transitionmatrices);
 }
 
-//' rcpp_viable_sites
+//' @name rcpp_viable_sites
 //' 
 //' Calculate sites&times introduction considered "viable" 
 //' eg that are not totally bested by other timings of introduction for the same site, 
@@ -280,7 +280,7 @@ Eigen::SparseMatrix<double> rcpp_viable_sites(std::vector<Eigen::SparseMatrix<do
   return(viableSites);
 }
 
-//' rcpp_viable_triplet
+//' @name rcpp_viable_triplet
 //' 
 //' Returns matrix summing up information of each viable site&time pair.
 //' col1&2 = X & Y coordinates
@@ -370,7 +370,7 @@ Eigen::SparseMatrix<double> rcpp_viable_values(Rcpp::NumericMatrix viablesTriple
    
 
 
-//' rcpp_eval_current_prob
+//' @name rcpp_eval_current_prob
 //' 
 //' Evaluate how would evolve the current present species without introduction.
 //'
@@ -407,7 +407,7 @@ NumericVector rcpp_eval_current_prob(int threshold,
   return(res);
 }
 
-//' rcpp_pheromons
+//' @name rcpp_pheromons
 //' 
 //' Evaluate the potential of each site&time pair, and give them weights for the optimization algorithm.
 //'
@@ -426,7 +426,7 @@ Rcpp::NumericVector rcpp_pheromons(Rcpp::NumericMatrix viablesTriplets){
   return(pheromons);
 }
 
-//' rcpp_generate_population
+//' @name rcpp_generate_population
 //' 
 //' Generate initial population for the genetic algorithm.
 //'
@@ -449,7 +449,7 @@ Rcpp::NumericVector rcpp_generate_population(Rcpp::NumericVector pheromons,
 }
 
 
-//' rcpp_algorithm_opt
+//' @name rcpp_algorithm_opt
 //' 
 //' (please use rcpp_algorithm_opt2, this version is slower) Genetic algorithm used to optimised choices of introduction under the constraint of reaching a dertain number of 
 //' presence at the end of the study period (threshold) with a minimal probability (confidence) while miimizing the cost
@@ -672,7 +672,7 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
   return(population);
 }
 
-//' rcpp_algorithm_opt2
+//' @name rcpp_algorithm_opt2
 //' 
 //' Genetic algorithm used to optimised choices of introduction under the constraint of reaching a dertain number of 
 //' presence at the end of the study period (threshold) with a minimal probability (confidence) while miimizing the cost
@@ -912,7 +912,7 @@ Rcpp::NumericVector rcpp_algorithm_opt2(Rcpp::NumericVector pheromons,
 }
 
 
-//' Rewriting the final population given by the genetic algorithm with coordinates and times of introduction
+//' @name Rewriting the final population given by the genetic algorithm with coordinates and times of introduction
 //'
 //' @param lastPopulation (Rcpp::NumericMatrix) a matrix of an optimised population obtain with the genetic algorithm
 //' @param viablesTriplets (Rcpp::NumericMatrix) a matrix of information about each viable site.

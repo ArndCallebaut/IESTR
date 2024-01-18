@@ -214,8 +214,8 @@ While more population tends to mean that the pool of potential solutions will be
 
 ```{r use genetic algorithm}
 #Algorithm - genetic algo characteristics
-npop = 10000 #size of the initial population
-nsur = 1000 #size of the surviving population
+npop = 1000 #size of the initial population
+nsur = 100 #size of the surviving population
 ngen = 30 #number of generations
 
 #generate the initial population for the genetic algorithm.

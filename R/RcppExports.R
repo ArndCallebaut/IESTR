@@ -135,7 +135,7 @@ proba_matrix_mult3 <- function(A, B) {
     .Call(`_IESTR_proba_matrix_mult3`, A, B)
 }
 
-#' rcpp_global_suitable_sites
+#' @name rcpp_global_suitable_sites
 #' 
 #' Establishes from the consecutiveSuitabilityMatrix what are the
 #' study sites in the map and attribute them an index used in 
@@ -149,7 +149,7 @@ rcpp_global_suitable_sites <- function(consecutiveSuitabilityMatrix) {
     .Call(`_IESTR_rcpp_global_suitable_sites`, consecutiveSuitabilityMatrix)
 }
 
-#' rcpp_global_suitable_coordinates.
+#' @name rcpp_global_suitable_coordinates.
 #' 
 #' Calculate the coordinates of the suitable sites.
 #'
@@ -160,7 +160,7 @@ rcpp_global_suitable_coordinates <- function(globalSuitableSites) {
     .Call(`_IESTR_rcpp_global_suitable_coordinates`, globalSuitableSites)
 }
 
-#' rcpp_spread_matrix
+#' @name rcpp_spread_matrix
 #' 
 #' Calculate the spread_matrix.
 #'
@@ -173,7 +173,7 @@ rcpp_spread_matrix <- function(globalSuitableSites, globalSuitableCoordinates, m
     .Call(`_IESTR_rcpp_spread_matrix`, globalSuitableSites, globalSuitableCoordinates, migrationKernel)
 }
 
-#' rcpp_local_transition_matrix
+#' @name rcpp_local_transition_matrix
 #' 
 #' Calculate the local transition matrices from the spread matrix and suitability matrices
 #'
@@ -186,7 +186,7 @@ rcpp_local_transition_matrix <- function(consecutiveSuitabilityMatrix, spreadmat
     .Call(`_IESTR_rcpp_local_transition_matrix`, consecutiveSuitabilityMatrix, spreadmatrix, globalSuitableCoordinates)
 }
 
-#' rcpp_transition_matrix
+#' @name rcpp_transition_matrix
 #' 
 #' Calculate the transition matrices from the local transition matrices
 #'
@@ -197,7 +197,7 @@ rcpp_transition_matrix <- function(localtransitionmatrices) {
     .Call(`_IESTR_rcpp_transition_matrix`, localtransitionmatrices)
 }
 
-#' rcpp_viable_sites
+#' @name rcpp_viable_sites
 #' 
 #' Calculate sites&times introduction considered "viable" 
 #' eg that are not totally bested by other timings of introduction for the same site, 
@@ -210,7 +210,7 @@ rcpp_viable_sites <- function(transitionmatrices) {
     .Call(`_IESTR_rcpp_viable_sites`, transitionmatrices)
 }
 
-#' rcpp_viable_triplet
+#' @name rcpp_viable_triplet
 #' 
 #' Returns matrix summing up information of each viable site&time pair.
 #' col1&2 = X & Y coordinates
@@ -244,7 +244,7 @@ rcpp_viable_values <- function(viablesTriplets, viableSites, globalSuitableSites
     .Call(`_IESTR_rcpp_viable_values`, viablesTriplets, viableSites, globalSuitableSites, transitionmatrices)
 }
 
-#' rcpp_eval_current_prob
+#' @name rcpp_eval_current_prob
 #' 
 #' Evaluate how would evolve the current present species without introduction.
 #'
@@ -258,7 +258,7 @@ rcpp_eval_current_prob <- function(threshold, currentPresenceMatrix, transitionm
     .Call(`_IESTR_rcpp_eval_current_prob`, threshold, currentPresenceMatrix, transitionmatrices, globalSuitableSites)
 }
 
-#' rcpp_pheromons
+#' @name rcpp_pheromons
 #' 
 #' Evaluate the potential of each site&time pair, and give them weights for the optimization algorithm.
 #'
@@ -269,7 +269,7 @@ rcpp_pheromons <- function(viablesTriplets) {
     .Call(`_IESTR_rcpp_pheromons`, viablesTriplets)
 }
 
-#' rcpp_generate_population
+#' @name rcpp_generate_population
 #' 
 #' Generate initial population for the genetic algorithm.
 #'
@@ -283,7 +283,7 @@ rcpp_generate_population <- function(pheromons, globalSuitableSites, npop, nbtop
     .Call(`_IESTR_rcpp_generate_population`, pheromons, globalSuitableSites, npop, nbtoplant)
 }
 
-#' rcpp_algorithm_opt
+#' @name rcpp_algorithm_opt
 #' 
 #' (please use rcpp_algorithm_opt2, this version is slower) Genetic algorithm used to optimised choices of introduction under the constraint of reaching a dertain number of 
 #' presence at the end of the study period (threshold) with a minimal probability (confidence) while miimizing the cost
@@ -309,7 +309,7 @@ rcpp_algorithm_opt <- function(pheromons, viablesTriplets, population0, costMatr
     .Call(`_IESTR_rcpp_algorithm_opt`, pheromons, viablesTriplets, population0, costMatrix, currentPresenceMatrix, transitionmatrices, globalSuitableSites, viablesValues, threshold, confidence, npop, nsur, ngen, nbtoplant)
 }
 
-#' rcpp_algorithm_opt2
+#' @name rcpp_algorithm_opt2
 #' 
 #' Genetic algorithm used to optimised choices of introduction under the constraint of reaching a dertain number of 
 #' presence at the end of the study period (threshold) with a minimal probability (confidence) while miimizing the cost
@@ -335,7 +335,7 @@ rcpp_algorithm_opt2 <- function(pheromons, viablesTriplets, population0, costMat
     .Call(`_IESTR_rcpp_algorithm_opt2`, pheromons, viablesTriplets, population0, costMatrix, currentPresenceMatrix, transitionmatrices, globalSuitableSites, viablesValues, threshold, confidence, npop, nsur, ngen, nbtoplant)
 }
 
-#' Rewriting the final population given by the genetic algorithm with coordinates and times of introduction
+#' @name Rewriting the final population given by the genetic algorithm with coordinates and times of introduction
 #'
 #' @param lastPopulation (Rcpp::NumericMatrix) a matrix of an optimised population obtain with the genetic algorithm
 #' @param viablesTriplets (Rcpp::NumericMatrix) a matrix of information about each viable site.
