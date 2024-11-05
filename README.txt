@@ -1,17 +1,14 @@
 Welcome in the IESTR package.
+Author : Arnaud Callebaut (arnaud.callebaut@outlook.fr)
 
 Before you start, make sure you installed clang on your computer so that Rcpp can work correctly.
 Also, user need to set their working directory in the scripts.
 
-You could install the package with the zip provided or install it from github with the commands :
+You could install the package from github with the commands :
 library(devtools)
 install_github("ArndCallebaut/IESTR")
 
-Four scripts are providing material to do the figures of the package:
--building_example_functions.R contain function to create the theorical case study.
--plot_exemple_functions.R contain functions to plot informations and results of the package.
--complementary_figures.R contain additional plot, used for the figures of the paper (legends, ect)
--IESTR_main_script.R is the main script, and show how to use IESTR
+The vignette of the script give a case study to show the IESTR package. This case study is also shown in the associated scientific paper as an exemple (not yet published*).
 
 Several libraries are used for the example :
 IESTR, dyplr, purrr, Matrix, grid, raster, lattice, ggplot2, viridis, hrbrthemes, methods.
