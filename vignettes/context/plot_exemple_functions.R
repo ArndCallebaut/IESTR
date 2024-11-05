@@ -131,8 +131,8 @@ do_plot_fig3 = function(nrow,
   
   # 11 - plot tensor
   rvb_tensor2 = round(rvb_tensor*255)
-  raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
-  plt1 <- plotRGB(flip(raster_RGB,1))
+  raster_RGB = terra::rast(rvb_tensor2)
+  terra::plotRGB(terra::flip(raster_RGB,direction="horizontal"))
   
 }
 
@@ -216,8 +216,8 @@ do_plot_fig4 = function(nrow,
   
   # 11 - plot tensor
   rvb_tensor2 = round(rvb_tensor*255)
-  raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
-  plt1 <- plotRGB(flip(raster_RGB,1))
+  raster_RGB = terra::rast(rvb_tensor2)
+  terra::plotRGB(terra::flip(raster_RGB,direction="horizontal"))
   
 }
 
@@ -316,7 +316,8 @@ do_plot_fig5 = function(nrow,
   
   # 11 - plot tensor
   rvb_tensor2 = round(rvb_tensor*255)
-  raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
+  raster_RGB = terra::rast(rvb_tensor2)
+  terra::plotRGB(terra::flip(raster_RGB,direction="horizontal"))
   
   
   # 12 - do cost plot
@@ -336,7 +337,6 @@ do_plot_fig5 = function(nrow,
           axis.ticks = element_blank())
   
   # 14 - all plot
-  plotRGB(flip(raster_RGB,1))
   
   colnames(choices) = c("x","y","time_step","cost","index","impact")
   ggplot(as.data.frame(choices), aes(x=time_step)) + 
@@ -414,8 +414,8 @@ do_plot_fig6 = function(nrow,
   }
   # 11 - plot tensor
   rvb_tensor2 = round(rvb_tensor*255)
-  raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
-  plt1 <- plotRGB(flip(raster_RGB,1))
+  raster_RGB = terra::rast(rvb_tensor2)
+  terra::plotRGB(flip(raster_RGB,direction="horizontal"))
   
 }
 
@@ -491,8 +491,8 @@ do_plot_fig7 = function(nrow,
   # 11 - plot tensor
   rvb_tensor[is.na(rvb_tensor)] = NA
   rvb_tensor2 = round(rvb_tensor*255)
-  raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
-  plt1 <- plotRGB(flip(raster_RGB,1))
+  raster_RGB = terra::rast(rvb_tensor2)
+  terra::plotRGB(flip(raster_RGB,direction="horizontal"))
   
 }
 
@@ -595,8 +595,8 @@ do_plot_fig8 = function(nrow,
   # 11 - plot tensor
   rvb_tensor[is.na(rvb_tensor)] = NA
   rvb_tensor2 = round(rvb_tensor*255)
-  raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
-  plt1 <- plotRGB(flip(raster_RGB,1))
+  raster_RGB = terra::rast(rvb_tensor2)
+  terra::plotRGB(flip(raster_RGB,direction="horizontal"))
   
 }
 
@@ -684,7 +684,7 @@ do_plot_fig001 = function(nrow,
   
   rvb_tensor[is.na(height_map)]=1
   rvb_tensor2 = round(rvb_tensor*255)
-  raster_RGB = stack(raster(rvb_tensor2[,,1]),raster(rvb_tensor2[,,2]),raster(rvb_tensor2[,,3]))
-  plt1 <- plotRGB(flip(raster_RGB,1))
+  raster_RGB = terra::rast(rvb_tensor2)
+  terra::plotRGB(terra::flip(raster_RGB,direction="horizontal"))
 }
 

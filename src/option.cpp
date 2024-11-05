@@ -14,13 +14,12 @@
 #include "maths_tools.h";
 #include "local_optimising_planting_choice.h";
 
-
 using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
 using namespace std::chrono;
 
-//' @name rcpp_global_suitable_sites
+//' rcpp_global_suitable_sites
 //' 
 //' Establishes from the consecutiveSuitabilityMatrix what are the
 //' study sites in the map and attribute them an index used in 
@@ -29,7 +28,6 @@ using namespace std::chrono;
 //'
 //' @param consecutiveSuitabilityMatrix (std::list<Eigen::SparseMatrix<double>>) list of matrix of suitability for each timestep.
 //' @return suitable sites as a sparse matrix
-//' @export
 // [[Rcpp::export]]
 Eigen::SparseMatrix<double> rcpp_global_suitable_sites(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix){
   int nbr = consecutiveSuitabilityMatrix.back().rows();
@@ -58,7 +56,7 @@ Eigen::SparseMatrix<double> rcpp_global_suitable_sites(std::list<Eigen::SparseMa
   return(globalSuitableSites);
 }
 
-//' @name rcpp_global_suitable_coordinates.
+//' rcpp_global_suitable_coordinates.
 //' 
 //' Calculate the coordinates of the suitable sites.
 //'
@@ -79,7 +77,7 @@ Rcpp::NumericMatrix rcpp_global_suitable_coordinates(Eigen::SparseMatrix<double>
   return(globalSuitableCoordinates);
 }
 
-//' @name rcpp_spread_matrix
+//' rcpp_spread_matrix
 //' 
 //' Calculate the spread_matrix.
 //'
@@ -115,7 +113,7 @@ Eigen::SparseMatrix<double> rcpp_spread_matrix(Eigen::SparseMatrix<double> globa
   return (spreadmatrix);
 }
 
-//' @name rcpp_local_transition_matrix
+//' rcpp_local_transition_matrix
 //' 
 //' Calculate the local transition matrices from the spread matrix and suitability matrices
 //'
@@ -125,7 +123,6 @@ Eigen::SparseMatrix<double> rcpp_spread_matrix(Eigen::SparseMatrix<double> globa
 //' @return list of matrix used to model spread behavior of the species with suitability, between two adjacent timestep
 //' @export
 // [[Rcpp::export]]
-
 std::list<Eigen::SparseMatrix<double>> rcpp_local_transition_matrix(std::list<Eigen::SparseMatrix<double>> consecutiveSuitabilityMatrix,
                                                                 Eigen::SparseMatrix<double> spreadmatrix,
                                                                 Rcpp::NumericMatrix globalSuitableCoordinates){
@@ -149,7 +146,7 @@ std::list<Eigen::SparseMatrix<double>> rcpp_local_transition_matrix(std::list<Ei
   return(localtransitionmatrices);
 }
 
-//' @name rcpp_transition_matrix
+//' rcpp_transition_matrix
 //' 
 //' Calculate the transition matrices from the local transition matrices
 //'
@@ -174,7 +171,7 @@ std::vector<Eigen::SparseMatrix<double>> rcpp_transition_matrix(std::list<Eigen:
   return(transitionmatrices);
 }
 
-//' @name rcpp_viable_sites
+//' rcpp_viable_sites
 //' 
 //' Calculate sites&times introduction considered "viable" 
 //' eg that are not totally bested by other timings of introduction for the same site, 
@@ -280,7 +277,7 @@ Eigen::SparseMatrix<double> rcpp_viable_sites(std::vector<Eigen::SparseMatrix<do
   return(viableSites);
 }
 
-//' @name rcpp_viable_triplet
+//' rcpp_viable_triplet
 //' 
 //' Returns matrix summing up information of each viable site&time pair.
 //' col1&2 = X & Y coordinates
@@ -370,7 +367,7 @@ Eigen::SparseMatrix<double> rcpp_viable_values(Rcpp::NumericMatrix viablesTriple
    
 
 
-//' @name rcpp_eval_current_prob
+//' rcpp_eval_current_prob
 //' 
 //' Evaluate how would evolve the current present species without introduction.
 //'
@@ -407,7 +404,7 @@ NumericVector rcpp_eval_current_prob(int threshold,
   return(res);
 }
 
-//' @name rcpp_pheromons
+//' rcpp_pheromons
 //' 
 //' Evaluate the potential of each site&time pair, and give them weights for the optimization algorithm.
 //'
@@ -426,7 +423,7 @@ Rcpp::NumericVector rcpp_pheromons(Rcpp::NumericMatrix viablesTriplets){
   return(pheromons);
 }
 
-//' @name rcpp_generate_population
+//' rcpp_generate_population
 //' 
 //' Generate initial population for the genetic algorithm.
 //'
@@ -449,7 +446,7 @@ Rcpp::NumericVector rcpp_generate_population(Rcpp::NumericVector pheromons,
 }
 
 
-//' @name rcpp_algorithm_opt
+//' rcpp_algorithm_opt
 //' 
 //' (please use rcpp_algorithm_opt2, this version is slower) Genetic algorithm used to optimised choices of introduction under the constraint of reaching a dertain number of 
 //' presence at the end of the study period (threshold) with a minimal probability (confidence) while miimizing the cost
@@ -536,7 +533,7 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
   // **************************************************************************
   
   if(g%10!=0){
-    std::cout << "Error, ngen must be multiple of 10. ngen setted to 10." << std::endl;
+    Rcout << "Error, ngen must be multiple of 10. ngen setted to 10." << std::endl;
     ngen = 10;
   }
   Rcpp::NumericMatrix evaluation(npop,2);
@@ -549,9 +546,9 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
     // **************************************************************************
     
     if(g == ngen - 1) {
-      std::cout << "100.0%" << std::endl;
+      Rcout << "100.0%" << std::endl;
     } else if( g%ref_10==0) {
-      std::cout << ((double)(g))/((double)(ngen))*100.0 << "%-" << std::endl;
+      Rcout << ((double)(g))/((double)(ngen))*100.0 << "%-" << std::endl;
     }
     
     // **************************************************************************
@@ -672,7 +669,7 @@ Rcpp::NumericVector rcpp_algorithm_opt(Rcpp::NumericVector pheromons,
   return(population);
 }
 
-//' @name rcpp_algorithm_opt2
+//' rcpp_algorithm_opt2
 //' 
 //' Genetic algorithm used to optimised choices of introduction under the constraint of reaching a dertain number of 
 //' presence at the end of the study period (threshold) with a minimal probability (confidence) while miimizing the cost
@@ -765,7 +762,7 @@ Rcpp::NumericVector rcpp_algorithm_opt2(Rcpp::NumericVector pheromons,
   int ref_10 = (int) ((double) ngen)/(10) ;
   
   if(g%10!=0){
-    std::cout << "Error, ngen must be multiple of 10. ngen setted to 10." << std::endl;
+    Rcout << "Error, ngen must be multiple of 10. ngen setted to 10." << std::endl;
     ngen = 10;
   }
   
@@ -777,9 +774,9 @@ Rcpp::NumericVector rcpp_algorithm_opt2(Rcpp::NumericVector pheromons,
     
     
     if(g == ngen - 1) {
-      std::cout << "100.0%" << std::endl;
+      Rcout << "100.0%" << std::endl;
     } else if( g%ref_10==0) {
-      std::cout << ((double)(g))/((double)(ngen))*100.0 << "%-" << std::endl;
+      Rcout << ((double)(g))/((double)(ngen))*100.0 << "%-" << std::endl;
     }
     
     // **************************************************************************
@@ -905,14 +902,12 @@ Rcpp::NumericVector rcpp_algorithm_opt2(Rcpp::NumericVector pheromons,
     if (true || g!=ngen){
       population = survivors;
     }
-    
-  
   }
   return(population);
 }
 
 
-//' @name Rewriting the final population given by the genetic algorithm with coordinates and times of introduction
+//' Rewriting the final population given by the genetic algorithm with coordinates and times of introduction
 //'
 //' @param lastPopulation (Rcpp::NumericMatrix) a matrix of an optimised population obtain with the genetic algorithm
 //' @param viablesTriplets (Rcpp::NumericMatrix) a matrix of information about each viable site.

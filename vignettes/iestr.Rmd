@@ -214,8 +214,8 @@ While more population tends to mean that the pool of potential solutions will be
 
 ```{r use genetic algorithm}
 #Algorithm - genetic algo characteristics
-npop = 1000 #size of the initial population
-nsur = 100 #size of the surviving population
+npop = 10000 #size of the initial population
+nsur = 1000 #size of the surviving population
 ngen = 30 #number of generations
 
 #generate the initial population for the genetic algorithm.
@@ -307,7 +307,7 @@ The genetic algorithm is a stochastic process and as such, can lead to solution 
 
 *This can take a long time to run, so by default this part is in comment.*
 
-Sites of persistence of the species during the period are here shown in blue, sites without persistence are in orange, light grey are sites chosen less than 10% of the time, medium grey between 10% and 50% and black for sites chosen more than 50% of the time.
+Sites of persistence of the species during the period are here shown in blue, sites without persistence are in orange, light grey are sites chosen less than 10% of the time, medium grey between 10% and 50% and black for sites chosen more than 50% of the time. (By default, for the vignette, these two scripts are not used, because the time of execution is too long)
 
 case of the homogeneous costs :
 
