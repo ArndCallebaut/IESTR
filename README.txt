@@ -9,7 +9,7 @@ library(devtools)
 install_github("ArndCallebaut/IESTR")
 
 The vignette of the script give a case study to show the IESTR package. This case study is also shown in the associated scientific paper as an exemple (not yet published*).
-The last part of the vignette is on comments, because it take a bit more time tu run.
+The last part of the vignette is on comments, because it takes a bit more time to run.
 
 Several libraries are used for the example :
 IESTR, dyplr, purrr, Matrix, grid, raster, lattice, ggplot2, viridis, hrbrthemes, methods.
