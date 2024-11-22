@@ -1,84 +1,46 @@
----
-title: "IESTR workflow"
-author: "name"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{IESTR workflow}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteDepends{Matrix,dplyr,ggplot2,lattice,purrr,raster,viridis}
----
+graphics.off()
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
 
-This thumbnail shows an example of the full use of the IESTR package. Note that to understand this, it is necessary to have read the paper presenting the theory about IESTR method.
+#################################################
+#################################################
+### Definitive example script
+#################################################
+#################################################
 
----
-
-### Step 0 : Importation of the packages used in the example
-
-Different packages with IESTR are used in this case study.
-
-We also call functions to build the case study maps used for IESTR, and plot different resulsts.
-
-```{r importing and setting random seed}
+### Imports
 library(IESTR)
-library(Matrix)
 library(dplyr)
 library(purrr)
+library(Matrix)
 library(grid)
 library(raster)
 library(lattice)
 library(ggplot2)
 library(viridis)
+library(hrbrthemes)
 library(methods)
-library(wesanderson)
 
 ### call for support scripts related to run examples and plot results 
-source("context/building_example_functions.R")
-source("context/plot_exemple_functions.R")
+source("building_example_functions.R")
+source("plot_exemple_functions.R")
 
 ### Global color defaults
 col = terrain.colors(20)
 hea = viridis(10)
 
-# Setting seed for R and C++
-set.seed(17)
-rcpp_set_seed(17)
-
-```
-
----
-
-## Setting parameters & building case study maps
-
-We set the different parameters used for the case study.
-
--- **threshold** is the number of sites with presence of the species we want to obtain at the end of the study period.
-
--- **confidence** is the minimal acceptable probability that the threshold is reached.
-
--- **nrow** and **ncol** are the size of the study area, **N_cycles** is the number of study timesteps.
-
--- Differents parameters will allow to set the temperature according to time (+time = +warm), position (+south = +warm) and altitude (+altitude = -warm). **Trange_spe** is a simplified modelisation of the niche of the species, that is only driven by temperature in our case.
-
-```{r variables}
-
 #################################################
 ## Initialisation & Variable
 #################################################
+
+# Setting seed for R and C++
+set.seed(17)
+rcpp_set_seed(17)
 
 ### Algorithm - optimum condition values
 #Threshold = Goal number of sites of species presence at the end of the period
 threshold = 50 
 #Confidence = Minimum probability that your goal is achieved during the optimization process 
-#(the lower the confidence the bigger the risk, related to flexibility in the solutions)
+#(the lower the confidnece the bigger the risk, related to flexibility in the solutions)
 confidence = 0.9
 
 #################################################
@@ -108,17 +70,6 @@ ltmarge = c(Tmin_alt_0 + Tadd_alt_1, Tmax_alt_0+Tadd_cyc)
 #Temperature ranges
 Trange_spe = c(8.8,9.1,11.6,11.9)
 
-```
-
-The different parameters are used to create the theorical maps of the example. We will be using directly three of these matrices as variables of our model :
-
--- **suitability_maps** is a list of suitability matrices, with a number of (*N_cycles*+1). They are sparse.
-
--- **presence_map** is a sparse matrix with presences in a cell marked as "1"
-
--- **cost1** and **cost3** are respectively cost of introduction maps for homogeneous costs and heterogeneous costs
-
-```{r example maps}
 # Building maps used for the case study
 height_map = height_map(nrow,ncol)
 climate_maps = climat_maps_maker(height_map,Tadd_cyc,N_cycles)
@@ -126,42 +77,34 @@ suitability_maps = suitability_maps(climate_maps,Trange_spe)
 presence_1st_area = presence_map_2(nrow,ncol,suitability_maps,height_map,N_cycles, 40) # find 40 sites in suitable sites that will not be suitable in the futur
 presence_2nd_area = presence_map(nrow,ncol,suitability_maps,height_map,lim2,10) 
 presence_map = presence_concatenate(presence_1st_area ,presence_2nd_area,nrow)
-cost1 = cost_map(nrow,ncol,height_map,cost_mapping1) # uniform costs
-cost3 = cost_map(nrow,ncol,height_map,cost_mapping3) # not uniform costs
-```
+cost1 = cost_map(nrow,ncol,height_map,cost_mapping1)
+cost3 = cost_map(nrow,ncol,height_map,cost_mapping3)
 
-We can plot the map of altitude and simulated temperatures maps of the first and last step : 
-
-```{r show fig1, fig.show='hold'}
+# A plot of the height map & temperatures at the beginning/at the end
 do_plot_fig2(nr, nc, height_map, climate_maps, N_cycles)
-```
-
-## Calculation of the transition matrices
-
-Now that all our matrices are set, we can build the transition matrices. In order to do that, we need to create some support matrices, **gss** and **gsc**, mainly used to facilitate indexing within the sparse matrices.
-
-```{r support matrices}
-#STEP 1 Internal indexing of sites used by the package; ====
-#These build support matrices to speed up information; 
-gss = rcpp_global_suitable_sites(suitability_maps)
-gsc = rcpp_global_suitable_coordinates(gss)
-```
-
-We can observe the presence and the suitability, with the support of *gsc*. Here, dark grey represent area of declining suitability with time, medium grey represent suitable area for the species friom the beginning to the end of the period, and light grey represents area that become suitable with time. Green is the theorical presence of the species. :
-
-```{r show fig2}
-do_plot_fig3(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map)
-```
-
-Our next step is to create the transition matrices. A new input of the model is set, **migr_spe**, the migration kernel of the species, being exactly the dispersal and establishment probability kernel. 
-
-```{r transition matrices}
-#STEP 2 Creation of the transition matrices ====
 
 #Dispersal and establishment probability kernel;
 migr_spe = array(0.01, c(3, 3))
 migr_spe[2,2] = 1
 
+#################################################
+## IESTR - case n°1 : Uniform costs 
+#################################################
+
+# All of this section describes how IESTR is used, step by step by step.
+# There are two main results : 
+# tm = the transition matrix, that allows to know the impact on the final state of the system of any introduction
+# choix1 = the calculated optimal introductions in space and time.
+# These can be directly calculated from the "IESTR_process" function, a wrapper for the different steps shown here.
+
+#STEP 1 Internal indexing of sites used by the package; ====
+#These build support matrices to speed up information; 
+gss = rcpp_global_suitable_sites(suitability_maps)
+gsc = rcpp_global_suitable_coordinates(gss)
+# inital presence of the species
+do_plot_fig3(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map) 
+
+#STEP 2 Creation of the transition matrices ====
 #get the spread matrix [to get at the migration potential of sites]
 sm = rcpp_spread_matrix(gss,gsc,migr_spe)
 #obtain local transition matrix
@@ -169,28 +112,14 @@ ltm = rcpp_local_transition_matrix(suitability_maps,sm,gsc)
 #obtain transition matrix
 tm = rcpp_transition_matrix(ltm)
 
-```
-
-## Optimising the introduction of the species, under constraints
-
-Once the transition matrices are obtain, we know the probabilities of presence of a species at the end of the study period resulting of an introduction at a given place and time. We are also able to combine the probabilities resulting of different introductions easily. This is the first step to the optimisation process.
-
-A filter is operate on the transitino matrices to eliminate bad choices of introduction and keep the potential good one. Then new support matrices are created.
-
-```{r fitlering and second support matrices}
 #STEP 3 Reindexing of values of the transition matrices ====
 #simplifying to potential solutions
 vs = rcpp_viable_sites(tm)
 vt = rcpp_viable_triplets(vs,tm,gsc,gss,cost1)
 vv = rcpp_viable_values(vt,vs,gss,tm)
-```
 
-With that, we evaluate each potential choice of introduction in space and time and give weights to these potential choices. The weights are calculated from the mean number of sites that the species will colonize according to the transition matrices.
-
-We preevaluate the maximum number of introduction needed by evaluating the difference between the minimal number of presence site we want at the end of the period minus the mean number of sites with presence without introduction, divided by the mean number of presence site added per introduction.
-
-```{r prepare optimization}
 #STEP 4 Pre-processing for the optimization part ====
+
 #Weight for each viable time-site combinations for species introduction 
 #  (more weight = more chances to be chosen)
 ph = rcpp_pheromons(vt) 
@@ -198,21 +127,7 @@ ph = rcpp_pheromons(vt)
 ecp = rcpp_eval_current_prob(threshold,presence_map,tm,gss) 
 #Maximum number of sites of introduction necessary to reach the threshold.
 ntp = floor((threshold - which(cumsum(ecp)>0.95)[1])/mean(vt[,6],0)) 
-```
 
-We now have all the variables needed to conduct the genetic algorithm. The aim of the genetic algorithm is to find the best set of introductions in space and time that minimise the costs of introduction while satisfying the constraint of having a number of presence site at the end of the period higher than the *threshold*, with a probability higher than the *confidence*.  
-
-We can set the optimization parameters :
-
--- **npop** is the size of the population. More population means more set of choices of introduction tested, and therefore more solution tested, but also more calculation.
-
--- **nsur** is the number of survivors in the population at each generation. The bigger the (nsur/npop) ratio, the more the algorithm will try a large number of various solutions; the lower the ratio, the more the algorithm will try new set of choices based on some very good set of choices. We use here a ratio of 0.1 which is relatively high. 
-
--- **ngen** is the number of generation of the genetic algorithm. Similar to npop, more ngen means that there will be more process of selection and combinaison of news units. 
-
-While more population tends to mean that the pool of potential solutions will be larger, more generations means that the pool of solution will be more locally optimised.
-
-```{r use genetic algorithm}
 #Algorithm - genetic algo characteristics
 npop = 10000 #size of the initial population
 nsur = 1000 #size of the surviving population
@@ -242,27 +157,15 @@ choix1 = rcpp_result_to_choice(lastPopulation = resultat1,
                                viablesTriplets = vt)
 
 message("number of introduction : ",sum(choix1[,4]!=0))
-```
 
-We can build the figure showing the evolution of the system without any introduction. In red are the site of persistence of the species, in red sites were the species disapears, and with the green gradient are shown the probability of colonisation of the sites (the greener the more probable is the colonisation, from 0 to 1) :
-
-```{r show fig3}
 #STEP 7 Show how would evolve the system without introduction ====
 do_plot_fig4(nrow,ncol,N_cycles,height_map,suitability_maps,
              gsc,tm,presence_map)
-```
 
-We can then show the figure, adding in a gradient of yellow to brown (the sooner timestep to the later timestep) the introductions, and still in green the probability of colonisation of the sites.
-
-```{r show fig4}
 #STEP 8 Show how would evolve the system with the introduction ====
 do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,choix1,
              gsc,tm,presence_map)
-```
 
-All of the previous process is summed up in a function, **IESTR_process**, which do the whole process, and return only the transition matrices and the choices of introduction.
-
-```{r all the process in one function}
 # iestr_results = IESTR_process(suitability_maps,
 #                                      presence_map,
 #                                      migr_spe,
@@ -272,16 +175,7 @@ All of the previous process is summed up in a function, **IESTR_process**, which
 #                                      npop,
 #                                      nsur,
 #                                      ngen)
-```
 
-## Optimising the introduction with heterogeneous costs.
-
-With different costs, the transition matrices used are the same.
-We need to use different support matrix, adapt the weights of the potential choices according to their costs, and therefore generate a different initial population.
-
-Different choices of introduction are then given by the model, as shown in the figure :
-
-```{r heterogeneous costs case}
 #################################################
 ## IESTR - case n°2 : Non-uniform costs 
 #################################################
@@ -299,23 +193,16 @@ choix3 = rcpp_result_to_choice(resultat3,vt3)
 #Show how would evolve the system with the introduction
 do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,choix3,
              global_suitable_coordinates,tm,presence_map)
-```
 
-## Evaluation of the variance in the selection of sites of introduction
 
-The genetic algorithm is a stochastic process and as such, can lead to solution that are not totally optimal, or only one good solution among multiple one. The consequence is that it may not return the same solution after each run, depending one the conplexity of the solution and of the problem. In order to have a mesure of this, we run 100 times the algorithm and show on a map for each site how many times it is chosen by the algorithm. 
-
-*This can take a long time to run, so by default this part is in comment.*
-
-Sites of persistence of the species during the period are here shown in blue, sites without persistence are in orange, light grey are sites chosen less than 10% of the time, medium grey between 10% and 50% and black for sites chosen more than 50% of the time. (By default, for the vignette, these two scripts are not used, because the time of execution is too long)
-
-case of the homogeneous costs :
-
-```{r variance of the output for homogeneous costs}
+# Next are the iterations of the algorithm.
+# It's commentated by default, because it does need more than an hour to run. 
+ 
+## ----variance of the output for homogeneous costs-----------------------------
 # #################################################
 # ## IESTR - 100 iterations (uniform costs)
 # #################################################
-# 
+
 # countmap = array(0,c(nrow,ncol))
 # timecount = rep(0,N_cycles)
 # NN = 100 #number of introductions
@@ -354,14 +241,11 @@ case of the homogeneous costs :
 #         xlab="timestep",
 #         ylab="occurences in 100 iterations",
 #         cex.lab=1.4)
-```
 
-case of the heterogeneous costs :
-
-```{r variance of the output for heterogeneous costs}
-# #################################################
-# ## IESTR - 100 iterations (non-uniform costs)
-# #################################################
+## ----variance of the output for heterogeneous costs---------------------------
+#################################################
+## IESTR - 100 iterations (non-uniform costs)
+#################################################
 # countmap2 = array(0,c(nrow,ncol))
 # timecount2 = rep(0,N_cycles)
 # NN = 100 #number of introductions
@@ -400,4 +284,4 @@ case of the heterogeneous costs :
 #         xlab="timestep",
 #         ylab="occurences in 100 iterations",
 #         cex.lab=1.4)
-```
+
