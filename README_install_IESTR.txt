@@ -7,7 +7,7 @@ You could install the package with the zip provided or install it from github wi
 library(devtools)
 install_github("ArndCallebaut/IESTR")
 
-Four scripts are providing material to do the figures of the article associated with the package, in "scripts_for_paper" :
+Four scripts are providing material to do the figures of the article associated with the package, in "scripts_for_article" :
 -building_example_functions.R contain function to create the theorical case study.
 -plot_exemple_functions.R contain functions to plot informations and results of the package.
 -SupplementaryMaterial.R contain additional plot, used for the figures of the paper (legends, ect)

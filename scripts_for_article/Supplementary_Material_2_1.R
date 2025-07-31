@@ -22,8 +22,8 @@ library(hrbrthemes)
 library(methods)
 
 ### call for support scripts related to run examples and plot results 
-source("./scripts_forpaper/building_example_functions.R")
-source("./scripts_forpaper/plot_exemple_functions.R")
+source("building_example_functions.R")
+source("plot_exemple_functions.R")
 
 ### Global color defaults
 col = terrain.colors(20)
@@ -102,8 +102,6 @@ migr_spe[2,2] = 1
 #These build support matrices to speed up information; 
 gss = rcpp_global_suitable_sites(suitability_maps)
 gsc = rcpp_global_suitable_coordinates(gss)
-# inital presence of the species
-do_plot_fig3(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map) 
 
 #STEP 2 Creation of the transition matrices ====
 #get the spread matrix [to get at the migration potential of sites]
@@ -148,7 +146,7 @@ choixx = list()
 choixx2 = list()
 m=1
 for (j in 1:K){
-  message("CALL FOR THE DAY - iteration ", j)
+  message(" - iteration ", j)
     for (i in 1:n){
       message(i)
       npop = npops[i]

@@ -81,7 +81,7 @@ cost1 = cost_map(nrow,ncol,height_map,cost_mapping1)
 cost3 = cost_map(nrow,ncol,height_map,cost_mapping3)
 
 # A plot of the height map & temperatures at the beginning/at the end
-do_plot_fig2(nr, nc, height_map, climate_maps, N_cycles)
+do_plot_fig2_abc(nr, nc, height_map, climate_maps, N_cycles)
 
 #Dispersal and establishment probability kernel;
 migr_spe = array(0.01, c(3, 3))
@@ -101,8 +101,10 @@ migr_spe[2,2] = 1
 #These build support matrices to speed up information; 
 gss = rcpp_global_suitable_sites(suitability_maps)
 gsc = rcpp_global_suitable_coordinates(gss)
-# inital presence of the species
-do_plot_fig3(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map) 
+# inital presence of the species 
+# (Warning message can be ignored, it appears because a matrix is used as a raster without CRS)
+do_plot_fig2_e(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map) 
+
 
 #STEP 2 Creation of the transition matrices ====
 #get the spread matrix [to get at the migration potential of sites]
@@ -159,12 +161,17 @@ choix1 = rcpp_result_to_choice(lastPopulation = resultat1,
 message("number of introduction : ",sum(choix1[,4]!=0))
 
 #STEP 7 Show how would evolve the system without introduction ====
-do_plot_fig4(nrow,ncol,N_cycles,height_map,suitability_maps,
+do_plot_fig3(nrow,ncol,N_cycles,height_map,suitability_maps,
              gsc,tm,presence_map)
+# (Warning message can be ignored, it appears because a matrix is used as a raster without CRS)
 
 #STEP 8 Show how would evolve the system with the introduction ====
-do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,choix1,
+do_plot_fig4(nrow,ncol,N_cycles,height_map,suitability_maps,choix1,
              gsc,tm,presence_map)
+# (Warning message can be ignored, it appears because a matrix is used as a raster without CRS)
+
+# (Warning message 2 can also be ignored, it triggers because we set the ylim)
+# (I don't know exactly why; but the figure correctly illustrate the results so, I think it's fine)
 
 # iestr_results = IESTR_process(suitability_maps,
 #                                      presence_map,
@@ -191,8 +198,14 @@ resultat3 = rcpp_algorithm_opt2(ph3,vt3,po3,cost3,presence_map,tm,
 choix3 = rcpp_result_to_choice(resultat3,vt3)
 
 #Show how would evolve the system with the introduction
-do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,choix3,
+do_plot_fig4(nrow,ncol,N_cycles,height_map,suitability_maps,choix3,
              global_suitable_coordinates,tm,presence_map)
+
+# (Warning message can be ignored, it appears because a matrix is used as a raster without CRS)
+
+# (Warning message 2 can also be ignored, it triggers because we set the ylim)
+# (I don't know exactly why; but the figure correctly illustrate the results so, I think it's fine)
+
 
 
 # Next are the iterations of the algorithm.
@@ -235,17 +248,17 @@ do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,choix3,
 #   }
 # }
 # 
-# do_plot_fig8(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap)
+# do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap)
 # barplot(height=timecount[1:30],
 #         names=as.character(1:30),
 #         xlab="timestep",
 #         ylab="occurences in 100 iterations",
 #         cex.lab=1.4)
-
-## ----variance of the output for heterogeneous costs---------------------------
-#################################################
-## IESTR - 100 iterations (non-uniform costs)
-#################################################
+# 
+# # ----variance of the output for heterogeneous costs---------------------------
+# ################################################
+# # IESTR - 100 iterations (non-uniform costs)
+# ################################################
 # countmap2 = array(0,c(nrow,ncol))
 # timecount2 = rep(0,N_cycles)
 # NN = 100 #number of introductions
@@ -278,10 +291,10 @@ do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,choix3,
 #   }
 # }
 # 
-# do_plot_fig8(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap2)
+# do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap2)
 # barplot(height=timecount2[1:30],
 #         names=as.character(1:30),
 #         xlab="timestep",
 #         ylab="occurences in 100 iterations",
 #         cex.lab=1.4)
-
+# 
