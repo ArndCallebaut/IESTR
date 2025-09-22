@@ -173,16 +173,6 @@ do_plot_fig4(nrow,ncol,N_cycles,height_map,suitability_maps,choix1,
 # (Warning message 2 can also be ignored, it triggers because we set the ylim)
 # (I don't know exactly why; but the figure correctly illustrate the results so, I think it's fine)
 
-# iestr_results = IESTR_process(suitability_maps,
-#                                      presence_map,
-#                                      migr_spe,
-#                                      cost1,
-#                                      threshold,
-#                                      confidence,
-#                                      npop,
-#                                      nsur,
-#                                      ngen)
-
 #################################################
 ## IESTR - case n°2 : Non-uniform costs 
 #################################################
@@ -205,96 +195,91 @@ do_plot_fig4(nrow,ncol,N_cycles,height_map,suitability_maps,choix3,
 
 # (Warning message 2 can also be ignored, it triggers because we set the ylim)
 # (I don't know exactly why; but the figure correctly illustrate the results so, I think it's fine)
-
-
-
-# Next are the iterations of the algorithm.
-# It's commentated by default, because it does need more than an hour to run. 
  
 ## ----variance of the output for homogeneous costs-----------------------------
 # #################################################
 # ## IESTR - 100 iterations (uniform costs)
 # #################################################
 
-# countmap = array(0,c(nrow,ncol))
-# timecount = rep(0,N_cycles)
-# NN = 100 #number of introductions
-# for(i in 1:NN){
-#   set.seed(i*100)
-#   rcpp_set_seed(i*100)
-#   message(i)
-#   resultat1 = rcpp_algorithm_opt2(pheromons = ph,
-#                                         viablesTriplets = vt,
-#                                         population0 = po,
-#                                         costMatrix = cost1,
-#                                         currentPresenceMatrix = presence_map,
-#                                         transitionmatrices = tm,
-#                                         globalSuitableSites = gss,
-#                                         viablesValues = vv,
-#                                         threshold = threshold,
-#                                         confidence = confidence,
-#                                         npop = npop,
-#                                         nsur = nsur,
-#                                         ngen = ngen,
-#                                         nbtoplant = ntp)
-# 
-#   choix1 = rcpp_result_to_choice(resultat1,vt)
-#   tmp_c= choix1[choix1[,1]!=0,]
-#   for (j in 1:length(tmp_c[,1])){
-#     countmap[tmp_c[j,1],tmp_c[j,2]] = countmap[tmp_c[j,1],tmp_c[j,2]]+1
-#   }
-#   for (i in 1:length(tmp_c[,1])){
-#     timecount[tmp_c[i,3]] = timecount[tmp_c[i,3]] + 1
-#   }
-# }
-# 
-# do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap)
-# barplot(height=timecount[1:30],
-#         names=as.character(1:30),
-#         xlab="timestep",
-#         ylab="occurences in 100 iterations",
-#         cex.lab=1.4)
-# 
-# # ----variance of the output for heterogeneous costs---------------------------
-# ################################################
-# # IESTR - 100 iterations (non-uniform costs)
-# ################################################
-# countmap2 = array(0,c(nrow,ncol))
-# timecount2 = rep(0,N_cycles)
-# NN = 100 #number of introductions
-# for(i in 1:NN){
-#   set.seed(i*100)
-#   rcpp_set_seed(i*100)
-#   message(i)
-#   resultat1 = rcpp_algorithm_opt2(pheromons = ph3,
-#                                  viablesTriplets = vt3,
-#                                  population0 = po3,
-#                                  costMatrix = cost3,
-#                                  currentPresenceMatrix = presence_map,
-#                                  transitionmatrices = tm,
-#                                  globalSuitableSites = gss,
-#                                  viablesValues = vv,
-#                                  threshold = threshold,
-#                                  confidence = confidence,
-#                                  npop = npop,
-#                                  nsur = nsur,
-#                                  ngen = ngen,
-#                                  nbtoplant = ntp)
-# 
-#   choix1 = rcpp_result_to_choice(resultat1,vt)
-#   tmp_c= choix1[choix1[,1]!=0,]
-#   for (j in 1:length(tmp_c[,1])){
-#     countmap2[tmp_c[j,1],tmp_c[j,2]] = countmap2[tmp_c[j,1],tmp_c[j,2]]+1
-#   }
-#   for (i in 1:length(tmp_c[,1])){
-#     timecount2[tmp_c[i,3]] = timecount2[tmp_c[i,3]] + 1
-#   }
-# }
-# 
-# do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap2)
-# barplot(height=timecount2[1:30],
-#         names=as.character(1:30),
-#         xlab="timestep",
-#         ylab="occurences in 100 iterations",
-#         cex.lab=1.4)
-# 
+countmap = array(0,c(nrow,ncol))
+timecount = rep(0,N_cycles)
+NN = 100 #number of introductions
+for(i in 1:NN){
+  set.seed(i*100)
+  rcpp_set_seed(i*100)
+  message(i)
+  resultat1 = rcpp_algorithm_opt2(pheromons = ph,
+                                        viablesTriplets = vt,
+                                        population0 = po,
+                                        costMatrix = cost1,
+                                        currentPresenceMatrix = presence_map,
+                                        transitionmatrices = tm,
+                                        globalSuitableSites = gss,
+                                        viablesValues = vv,
+                                        threshold = threshold,
+                                        confidence = confidence,
+                                        npop = npop,
+                                        nsur = nsur,
+                                        ngen = ngen,
+                                        nbtoplant = ntp)
+
+  choix1 = rcpp_result_to_choice(resultat1,vt)
+  tmp_c= choix1[choix1[,1]!=0,]
+  for (j in 1:length(tmp_c[,1])){
+    countmap[tmp_c[j,1],tmp_c[j,2]] = countmap[tmp_c[j,1],tmp_c[j,2]]+1
+  }
+  for (i in 1:length(tmp_c[,1])){
+    timecount[tmp_c[i,3]] = timecount[tmp_c[i,3]] + 1
+  }
+}
+
+do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap)
+barplot(height=timecount[1:30],
+        names=as.character(1:30),
+        xlab="timestep",
+        ylab="occurences in 100 iterations",
+        cex.lab=1.4)
+
+# ----variance of the output for heterogeneous costs---------------------------
+################################################
+# IESTR - 100 iterations (non-uniform costs)
+################################################
+countmap2 = array(0,c(nrow,ncol))
+timecount2 = rep(0,N_cycles)
+NN = 100 #number of introductions
+for(i in 1:NN){
+  set.seed(i*100)
+  rcpp_set_seed(i*100)
+  message(i)
+  resultat1 = rcpp_algorithm_opt2(pheromons = ph3,
+                                 viablesTriplets = vt3,
+                                 population0 = po3,
+                                 costMatrix = cost3,
+                                 currentPresenceMatrix = presence_map,
+                                 transitionmatrices = tm,
+                                 globalSuitableSites = gss,
+                                 viablesValues = vv,
+                                 threshold = threshold,
+                                 confidence = confidence,
+                                 npop = npop,
+                                 nsur = nsur,
+                                 ngen = ngen,
+                                 nbtoplant = ntp)
+
+  choix1 = rcpp_result_to_choice(resultat1,vt)
+  tmp_c= choix1[choix1[,1]!=0,]
+  for (j in 1:length(tmp_c[,1])){
+    countmap2[tmp_c[j,1],tmp_c[j,2]] = countmap2[tmp_c[j,1],tmp_c[j,2]]+1
+  }
+  for (i in 1:length(tmp_c[,1])){
+    timecount2[tmp_c[i,3]] = timecount2[tmp_c[i,3]] + 1
+  }
+}
+
+do_plot_fig5(nrow,ncol,N_cycles,height_map,suitability_maps,gsc,presence_map,countmap2)
+barplot(height=timecount2[1:30],
+        names=as.character(1:30),
+        xlab="timestep",
+        ylab="occurences in 100 iterations",
+        cex.lab=1.4)
+

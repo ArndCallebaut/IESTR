@@ -13,7 +13,7 @@ library(dplyr)
 
 
 #################################################
-## Figure 2 : presentation of the island & t°
+## Figure 2abc : presentation of the island & t°
 #################################################
 
 do_plot_fig2_abc = function(nr, nc, height_map, climate_maps, N_cycles, name = "fig2.png"){
@@ -58,7 +58,7 @@ do_plot_fig2_abc = function(nr, nc, height_map, climate_maps, N_cycles, name = "
 }
 
 #################################################
-## Figure 3 : presentation costs map
+## Figure 2bis : presentation costs map
 #################################################
 
 do_plot_fig2bis = function(nr,nc,cost1,cost2,cost3,name = "fig2.png"){
@@ -78,7 +78,7 @@ do_plot_fig2bis = function(nr,nc,cost1,cost2,cost3,name = "fig2.png"){
 }
 
 #################################################
-## Figure 3.bis : check suitability
+## Figure 2e : check suitability
 #################################################
 
 do_plot_fig2_e = function(nrow,
@@ -141,7 +141,7 @@ do_plot_fig2_e = function(nrow,
 }
 
 #################################################
-## Figure 4 : results plot
+## Figure 3 : results plot
 #################################################
 
 do_plot_fig3 = function(nrow,
@@ -226,7 +226,7 @@ do_plot_fig3 = function(nrow,
 }
 
 #################################################
-## Figure 5 : results plot
+## Figure 4 : results plot
 #################################################
 
 do_plot_fig4 = function(nrow,
@@ -276,6 +276,11 @@ do_plot_fig4 = function(nrow,
   tmp$effect = 1 - tmp$effect
   vectors_effects_on_tN = summary((tm[[1]][,pres_index[,3]]))
   choices = choices[choices[,1]!=0,] 
+  message("A")
+  print(XY_pres)
+  message("B")
+  print(choices)
+  message("C")
   
   vectors_intro_effects_on_tN = summary(Matrix(apply(choices, 1, function (x) tm[[x[3]]][,x[5]]),sparse=T))
   colnames(vectors_intro_effects_on_tN) = c("index","i","effect")
@@ -306,6 +311,9 @@ do_plot_fig4 = function(nrow,
   rvb_tensor[,,3][cbind(XY_pres[,1],XY_pres[,2])] = 0.3 
   
   surviving_sites = inner_join(XY_pres, XY_effect, by=c('x'='x', 'y'='y'))
+  message("Number of surviving sites : ", nrow(surviving_sites))
+  message("Minimum probability of finding species in the surviving sites : ", min(surviving_sites$effect))
+  message("As there are 10 sites with probability>0.9, these are 10 presences at the end due to initial presence persisting alone")
   rvb_tensor[,,1][cbind(surviving_sites[,1],surviving_sites[,2])] = 0.3
   rvb_tensor[,,2][cbind(surviving_sites[,1],surviving_sites[,2])]= 0.3
   rvb_tensor[,,3][cbind(surviving_sites[,1],surviving_sites[,2])] = 0.9 
@@ -343,11 +351,20 @@ do_plot_fig4 = function(nrow,
   plotRGB(flip(raster_RGB,1))
   
   colnames(choices) = c("x","y","time_step","cost","index","impact")
+  
+  intro_index = inner_join(data.frame(choices),XY_effect,by = c("x", "y"))
+  message("Number of introduced sites : ", nrow(intro_index))
+  message("Minimum probability of finding species in the introduction sites : ", min(surviving_sites$effect))
+  message("As there are 7 sites with probability>0.9, these are 7 presences at the end due to initial presence persisting alone")
+  message("Out of the 50 sites goal by the end of the timesteps, 10+7=17 sites are obtained with persistance or direct introduction")
+  message("The 33 left are result of the dispersal.")
+  
   ggplot(as.data.frame(choices), aes(x=time_step)) + 
     xlim(0, 30)+
     ylim(0, 8)+
     geom_histogram(color="black", fill="white",bins = 30)+
     theme_minimal(base_size = 40)
+  
 }
 
 #################################################
